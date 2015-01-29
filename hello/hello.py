@@ -2,10 +2,10 @@ import webapp2
 
 
 form = """
-<form action="/testform" method="post">
-    <input name="q">
-    <input type="submit">
-</form>
+    <form action="/testform" method="post">
+        <input name="q">
+        <input type="submit">
+    </form>
 """
 
 
