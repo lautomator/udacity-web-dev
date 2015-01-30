@@ -18,6 +18,7 @@
 # day.
 #
 
+# valid day range
 days = range(1, 32)
 
 
