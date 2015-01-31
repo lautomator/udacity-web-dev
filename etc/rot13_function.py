@@ -15,24 +15,24 @@ def rot13(s):
     uc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLM'
     lc = 'abcdefghijklmnopqrstuvqxyzabcdefghijklm'
 
-    tmp = []
-    other_chars = r'[0-9]'
+    conversion = []
+    other_chars = r'[\d\s\W]'
 
     for char in s:
 
         if char.isupper():
             index = uc.find(char)
             char = uc[index + 13]
-            tmp.append(char)
+            conversion.append(char)
 
         if char.islower():
             index = lc.find(char)
             char = lc[index + 13]
-            tmp.append(char)
+            conversion.append(char)
 
-        if re.match(char, other_chars):
-            tmp.append(char)
+        if re.match(other_chars, char):
+            conversion.append(char)
 
-    return ''.join(tmp)
+    return ''.join(conversion)
 
-print rot13('HelLo 123')
+print rot13('HelLo 123 %$#\n\nsome More text    and spaces\n')

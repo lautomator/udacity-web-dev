@@ -3,17 +3,25 @@ import cgi
 import re
 
 
-form = """
-    <form method="post">
-        <label>
-            <pre>Enter some text to ROT13:</pre>
+form = """<!DOCTYPE html>
 
-            <textarea name="text" cols="56" rows="8">%(value)s</textarea>
-        </label>
+<html>
+  <head>
+    <title>Rot13</title>
+  </head>
+
+  <body>
+    <h2>Enter some text to ROT13:</h2>
+
+    <form method="post">
+        <textarea name="text" cols="56" rows="8">%(value)s</textarea>
 
         <br>
         <input type="submit">
     </form>
+  </body>
+
+</html>
 """
 
 
@@ -29,15 +37,17 @@ class MainPage(webapp2.RequestHandler):
 
     def post(self):
 
-        user_entry = escape_html(self.request.get('text'))
+        user_entry = self.request.get('text')
 
         entry = rot13(user_entry)
 
-        self.write_form(entry)
+        self.write_form(escape_html(entry))
 
 
 # URLs
-application = webapp2.WSGIApplication([('/', MainPage)], debug=True)
+application = webapp2.WSGIApplication([(
+    '/rot13/',
+    MainPage)], debug=True)
 
 
 def escape_html(s):
@@ -50,21 +60,22 @@ def rot13(s):
     uc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLM'
     lc = 'abcdefghijklmnopqrstuvqxyzabcdefghijklm'
 
-    tmp = []
+    conversion = []
+    other_chars = r'[\d\s\W]'
 
     for char in s:
 
         if char.isupper():
             index = uc.find(char)
             char = uc[index + 13]
-            tmp.append(char)
+            conversion.append(char)
 
         if char.islower():
             index = lc.find(char)
             char = lc[index + 13]
-            tmp.append(char)
+            conversion.append(char)
 
-        if char == ' ' or char == '' or char == '\n' or char == '\t':
-            tmp.append(char)
+        if re.match(other_chars, char):
+            conversion.append(char)
 
-    return ''.join(tmp)
+    return ''.join(conversion)
