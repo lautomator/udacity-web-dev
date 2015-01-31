@@ -1,5 +1,10 @@
-hello app
-=========
+udacity-web-dev-apps
+====================
 
-This is a test app for the google app engine.
+These are my working files for the Udacity Web Development course.
+The following directories are deployable on the Google App Engine.
+
+* hello
+* rot13
+ 
 

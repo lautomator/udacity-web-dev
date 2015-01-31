@@ -11,10 +11,10 @@ form = """<!DOCTYPE html>
   </head>
 
   <body>
-    <h2>Enter some text to ROT13:</h2>
+    <h2 style="font-family: sans-serif">Enter some text to ROT13:</h2>
 
     <form method="post">
-        <textarea name="text" cols="56" rows="8">%(value)s</textarea>
+        <textarea name="text" cols="56" rows="8">%(text)s</textarea>
 
         <br>
         <input type="submit">
@@ -29,7 +29,7 @@ class MainPage(webapp2.RequestHandler):
 
     def write_form(self, form_value=''):
 
-        self.response.write(form % {'value': form_value})
+        self.response.write(form % {'text': escape_html(form_value)})
 
     def get(self):
 
@@ -39,14 +39,12 @@ class MainPage(webapp2.RequestHandler):
 
         user_entry = self.request.get('text')
 
-        entry = rot13(user_entry)
-
-        self.write_form(escape_html(entry))
+        self.write_form(rot13(user_entry))
 
 
 # URLs
 application = webapp2.WSGIApplication([(
-    '/rot13/',
+    '/unit2/rot13/',
     MainPage)], debug=True)
 
 
@@ -58,7 +56,7 @@ def escape_html(s):
 def rot13(s):
 
     uc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLM'
-    lc = 'abcdefghijklmnopqrstuvqxyzabcdefghijklm'
+    lc = 'abcdefghijklmnopqrstuvwxyzabcdefghijklm'
 
     conversion = []
     other_chars = r'[\d\s\W]'
