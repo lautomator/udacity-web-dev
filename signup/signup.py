@@ -96,30 +96,30 @@ class MainPage(webapp2.RequestHandler):
         user_username = self.request.get('username')
         user_password = self.request.get('password')
         user_verify = self.request.get('verify')
-#        user_email = self.request.get('email')
+        # user_email = self.request.get('email')
 
         username = valid_username(user_username)
         password = valid_password(user_password)
-        verify = valid_verify(password, user_verify)
+        verify = valid_verify(user_password, user_verify)
 
         if not username:
             err_name = "That's not a valid username."
 
         if not password:
-            err_password = "That's not a valid password"
+            err_password = "That's not a valid password."
 
-        if password and not verify:
-            err_verify = "Password does not match."
+        if not verify:
+            err_verify = "Passwords do not match."
 
+        if not (username and password and verify):
+            self.write_form(
+                err_name=err_name,
+                err_password=err_password,
+                err_verify=err_verify,
+                username=user_username
+                )
         else:
             self.redirect("/welcome")
-
-        self.write_form(
-            err_name=err_name,
-            username=user_username,
-            err_password=err_password,
-            err_verify=err_verify
-        )
 
 #        if user_email:
 #            email = valid_email(user_email)
@@ -156,10 +156,12 @@ EMAIL_RE = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 
 # validation procedures
 def valid_username(s):
+
     return USER_RE.match(s)
 
 
 def valid_password(s1):
+
     return PW_RE.match(s1)
 
 
@@ -170,4 +172,5 @@ def valid_verify(s1, s2):
 
 
 def valid_email(s):
+
     return EMAIL_RE.match(s)

@@ -11,16 +11,19 @@ form = """
             Month
             <input type="text" name="month" value="%(month)s">
         </label>
+        <br>
 
         <label>
             Day
             <input type="text" name="day" value="%(day)s">
         </label>
+        <br>
 
         <label>
             Year
             <input type="text" name="year" value="%(year)s">
         </label>
+        <br>
 
         <div style="color: red">%(error)s</div>
 
