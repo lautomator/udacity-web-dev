@@ -70,10 +70,10 @@ class MainPage(webapp2.RequestHandler):
         err_password='',
         err_verify='',
         err_email='',
-        username="",
-        password="",
-        verify="",
-        email=""
+        username='',
+        password='',
+        verify='',
+        email=''
     ):
 
         self.response.write(form % {
@@ -96,51 +96,58 @@ class MainPage(webapp2.RequestHandler):
         user_username = self.request.get('username')
         user_password = self.request.get('password')
         user_verify = self.request.get('verify')
-        # user_email = self.request.get('email')
+        user_email = self.request.get('email')
 
         username = valid_username(user_username)
         password = valid_password(user_password)
         verify = valid_verify(user_password, user_verify)
+        email = valid_email(user_email)
+        email_ok = True
+
+        err = ['', '', '', '', '', '', '', '']
 
         if not username:
-            err_name = "That's not a valid username."
+            err[0] = "That's not a valid username."
 
         if not password:
-            err_password = "That's not a valid password."
+            err[1] = "That's not a valid password."
 
         if not verify:
-            err_verify = "Passwords do not match."
+            err[2] = "Passwords do not match."
 
-        if not (username and password and verify):
-            self.write_form(
-                err_name=err_name,
-                err_password=err_password,
-                err_verify=err_verify,
-                username=user_username
-                )
+        if user_email and not email:
+            err[3] = "That's not a valid email."
+            email_ok = False
+
+        if (username and password and verify and email_ok):
+
+            self.redirect("/welcome" + "?username=" + user_username)
+
         else:
-            self.redirect("/welcome")
-
-#        if user_email:
-#            email = valid_email(user_email)
-#
-#            if not email:
-#                self.write_form(err_email="That's not a valid email.")
+            self.write_form(
+                err_name=err[0],
+                err_password=err[1],
+                err_verify=err[2],
+                err_email=err[3],
+                username=user_username,
+                password='',
+                verify='',
+                email=''
+            )
 
 
 class WelcomeHandler(webapp2.RequestHandler):
 
     def get(self):
 
-        # TODO: need to add the accepted username
-        self.response.write("Welcome, ")
+        self.response.write("Welcome, " + username)
 
 
 # URLs
 application = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/welcome', WelcomeHandler)
-], debug=True)
+], debug=False)
 
 
 # escape nasty html chars
@@ -167,8 +174,7 @@ def valid_password(s1):
 
 def valid_verify(s1, s2):
 
-    if s1 == s2:
-        return s2
+    return s1 == s2
 
 
 def valid_email(s):
