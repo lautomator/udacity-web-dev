@@ -76,7 +76,7 @@ class MainPage(webapp2.RequestHandler):
         email=''
     ):
 
-        self.response.write(form % {
+        self.response.out.write(form % {
             'err_name': err_name,
             'err_password': err_password,
             'err_verify': err_verify,
@@ -101,10 +101,12 @@ class MainPage(webapp2.RequestHandler):
         username = valid_username(user_username)
         password = valid_password(user_password)
         verify = valid_verify(user_password, user_verify)
+        # email is an optional field
         email = valid_email(user_email)
         email_ok = True
 
-        err = ['', '', '', '', '', '', '', '']
+        # populates the empty list with placeholder values
+        err = [s for s in (' ' * 8)]
 
         if not username:
             err[0] = "That's not a valid username."
@@ -121,7 +123,7 @@ class MainPage(webapp2.RequestHandler):
 
         if (username and password and verify and email_ok):
 
-            self.redirect("/welcome" + "?username=" + user_username)
+            self.redirect("/welcome")
 
         else:
             self.write_form(
@@ -140,10 +142,9 @@ class WelcomeHandler(webapp2.RequestHandler):
 
     def get(self):
 
-        self.response.write("Welcome, " + username)
+        self.response.out.write("Welcome, ")
 
-
-# URLs
+# URL mapping
 application = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/welcome', WelcomeHandler)
