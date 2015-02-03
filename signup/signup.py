@@ -142,13 +142,14 @@ class WelcomeHandler(webapp2.RequestHandler):
 
     def get(self):
 
-        self.response.out.write("Welcome, ")
+        q = self.request.get('username')
+        self.response.out.write("Welcome, " + q)
 
 # URL mapping
 application = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/welcome', WelcomeHandler)
-], debug=False)
+], debug=True)
 
 
 # escape nasty html chars

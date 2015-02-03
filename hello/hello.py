@@ -69,7 +69,7 @@ class MainPage(webapp2.RequestHandler):
 class ThanksHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write("Thanks! That's a totally valid day!")
-
+z
 # class TestHandler(webapp2.RequestHandler):
 #    def post(self):
 #        q = self.request.get('q')
