@@ -123,7 +123,11 @@ class MainPage(webapp2.RequestHandler):
 
         if (username and password and verify and email_ok):
 
-            self.redirect("/welcome")
+            print "KAWASAKI"
+            url = "/welcome?username={}".format(user_username)
+            
+            print url
+            self.redirect(url)
 
         else:
             self.write_form(
@@ -142,8 +146,8 @@ class WelcomeHandler(webapp2.RequestHandler):
 
     def get(self):
 
-        q = self.request.get('username')
-        self.response.out.write("Welcome, " + q)
+        username = self.request.get('username')
+        self.response.out.write("Welcome, " + username)
 
 # URL mapping
 application = webapp2.WSGIApplication([
