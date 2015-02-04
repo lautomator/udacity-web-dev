@@ -123,10 +123,8 @@ class MainPage(webapp2.RequestHandler):
 
         if (username and password and verify and email_ok):
 
-            print "KAWASAKI"
             url = "/welcome?username={}".format(user_username)
-            
-            print url
+
             self.redirect(url)
 
         else:
@@ -151,7 +149,7 @@ class WelcomeHandler(webapp2.RequestHandler):
 
 # URL mapping
 application = webapp2.WSGIApplication([
-    ('/', MainPage),
+    ('/unit2/signup/', MainPage),
     ('/welcome', WelcomeHandler)
 ], debug=True)
 
