@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>FizzBuzz</title>
+    </head>
+
+    <body>
+
+    <ol>
+    {% for x in range(1, n + 1) %}
+        {% if (x % 5 == 0 and x % 5 == 0) %}
+        <li><pre>FizzBuzz</pre></li>
+
+        {% elif x % 3 == 0 %}
+        <li><pre>Fizz</pre></li>
+
+        {% elif x % 5 == 0 %}
+        <li><pre>Buzz</pre></li>
+
+        {% else %}
+        <li><pre>{{x}}</pre></li>
+        {% endif %}
+
+    {% endfor %}
+    </ol>
+
+    </body>
+</html>
