@@ -31,5 +31,5 @@ class FizzBuzzHandler(Handler):
 
 # urls
 application = webapp2.WSGIApplication([
-    ('/fizzbuzz', FizzBuzzHandler)
-    ], debug=True)
+    ('/', FizzBuzzHandler)
+], debug=True)

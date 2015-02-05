@@ -8,19 +8,21 @@
 
     <body>
 
+    <h2>FizzBuzz You</h2>
+
     <ol>
     {% for x in range(1, n + 1) %}
-        {% if (x % 5 == 0 and x % 5 == 0) %}
-        <li><pre>FizzBuzz</pre></li>
+        {% if (x % 3 == 0 and x % 5 == 0) %}
+        <li>FizzBuzz</li>
 
         {% elif x % 3 == 0 %}
-        <li><pre>Fizz</pre></li>
+        <li>Fizz</li>
 
         {% elif x % 5 == 0 %}
-        <li><pre>Buzz</pre></li>
+        <li>Buzz</li>
 
         {% else %}
-        <li><pre>{{x}}</pre></li>
+        <li>{{x}}</li>
         {% endif %}
 
     {% endfor %}
