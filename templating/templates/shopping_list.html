@@ -1,40 +1,33 @@
-<!DOCTYPE html>
+{% extends "base.html"%}
 
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>Shopping List</title>
-    </head>
+            {% block content %}
+            <h2>Add a Food</h2>
 
-    <body>
+            <form>
+                <input type="text" name="food">
 
-    <h2>Add a Food</h2>
-    <form>
-        <input type="text" name="food">
+            {% if items %}
 
-    {% if items %}
+                {% for item in items %}
+                <input type="hidden" name="food" value="{{item}}">
+                {% endfor %}
 
-        {% for item in items %}
-        <input type="hidden" name="food" value="{{item}}">
-        {% endfor %}
+            {% endif %}
 
-    {% endif %}
+                <button>Add</button>
 
-        <button>Add</button>
+            </form>
 
-    </form>
+            {% if items %}
+            <h2>Shopping List</h2>
 
-    {% if items %}
-    <h2>Shopping List</h2>
+            <ul>
 
-    <ul>
+                {% for item in items%}
+                <li>{{item}}</li>
+                {% endfor %}
 
-        {% for item in items%}
-        <li>{{item}}</li>
-        {% endfor %}
+            </ul>
+            {% endif %}
 
-    </ul>
-    {% endif %}
-
-    </body>
-</html>
+            {% endblock %}

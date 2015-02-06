@@ -4,7 +4,10 @@ import jinja2
 
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+jinja_env = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(template_dir),
+    autoescape=True
+    )
 
 
 class Handler(webapp2.RequestHandler):
@@ -29,7 +32,16 @@ class MainPage(Handler):
         self.render('shopping_list.html', items=items)
 
 
+class FizzBuzzHandler(Handler):
+
+    def get(self):
+
+        n = self.request.get('n', 0)
+        n = n and int(n)  # n must be an integer
+        self.render('fizz_buzz.html', n=n)
+
 # urls
-application = webapp2.WSGIApplication([(
-    '/', MainPage),
-], debug=True)
+application = webapp2.WSGIApplication([
+    ('/', MainPage),
+    ('/fizzbuzz/', FizzBuzzHandler)
+    ], debug=True)
