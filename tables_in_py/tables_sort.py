@@ -96,20 +96,19 @@ links = [
 # submission time ascending
 def query():
 
-    # List to save the results
+    user_urls = []
     results = []
 
     for link in links:
 
-        results.append(link.submitted_time)
+        if link.submitter_id == 62443:
+            tmp = link.submitted_time, link.url
+            user_urls.append(tmp)
 
-    # for link in links:
+    user_urls.sort()
 
-    #     if link.submitter_id == 62443:
-
-    #         results.append(link.url)
-
-    results.sort(reverse=True)
+    for item in user_urls:
+        results.append(item[1])
 
     return results
 
