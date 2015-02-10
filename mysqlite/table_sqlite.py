@@ -1,10 +1,5 @@
-# TASK
-#
-# make the function query() below return:
-# - a list of Links submitted by user 62443
-# - sorted by ascending submission time
-
 from collections import namedtuple
+import sqlite3
 
 # make a basic Link class
 Link = namedtuple('Link', ['id', 'submitter_id', 'submitted_time', 'votes',
@@ -87,37 +82,24 @@ links = [
          "An R programmer looks at Julia",
          "http://www.r-bloggers.com/an-r-programmer-looks-at-julia/")]
 
-
 # links is a list of Link objects. Links have a handful of properties. For
 # example, a Link's number of votes can be accessed by link.votes if "link" is a
 # Link.
 
+# make and populate a table
+db = sqlite3.connect(':memory:')
+db.execute('create table links ' +
+    '(id integer, submitter_id integer, submitted_time integer, ' +
+    'votes integer, title text, url text)')
+
+for l in links:
+    db.execute('insert into links values (?, ?, ?, ?, ?, ?)', l)
+
 # make the function query() return a list of Links submitted by user 62443, by
 # submission time ascending
 def query():
-
-# This returns the urls, sorted, alone
-#     user_urls = []
-#     results = []
-
-#     for link in links:
-
-#         if link.submitter_id == 62443:
-#             tmp = link.submitted_time, link.url
-#             user_urls.append(tmp)
-
-#     user_urls.sort()
-
-#     for item in user_urls:
-#         results.append(item[1])
-
-#     return results
-
-# This returns the objects queried, sorted
-
-    result = sorted([l for l in links if l.submitter_id == 62443],
-        key=lambda link: link.submitted_time)
-
-    return result
+    c = db.execute('select * from links')
+    results = c.fetchall()
+    return results
 
 print query()
