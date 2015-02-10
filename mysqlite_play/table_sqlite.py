@@ -97,9 +97,17 @@ for l in links:
 
 # make the function query() return a list of Links submitted by user 62443, by
 # submission time ascending
+# def query():
+#     cursor = db.execute('select * from links')
+#     for link_tuple in cursor:
+#         # link = Link(*link_tuple)
+#         print link_tuple
+
 def query():
-    c = db.execute('select * from links')
-    results = c.fetchall()
-    return results
+
+    c = db.execute("")
+
+    link = Link(c.fetchone())
+    return link.votes
 
 print query()
