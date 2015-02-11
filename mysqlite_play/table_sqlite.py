@@ -95,19 +95,64 @@ db.execute('create table links ' +
 for l in links:
     db.execute('insert into links values (?, ?, ?, ?, ?, ?)', l)
 
-# make the function query() return a list of Links submitted by user 62443, by
-# submission time ascending
+# printing all of the records
 # def query():
 #     cursor = db.execute('select * from links')
 #     for link_tuple in cursor:
 #         # link = Link(*link_tuple)
 #         print link_tuple
 
+# QUIZ - make the function query() return the number of
+# votes the link with ID = 2 has
+# def query():
+
+#     c = db.execute("SELECT * FROM links WHERE id=2")
+
+#     link = Link(*c.fetchone())
+#     return link.votes
+
+# print query()
+
+# QUIZ - make the function query() return the ID of the link that was
+# submitted by user 62443 and has > 1000 votes.
+# def query():
+
+#     c = db.execute("SELECT * FROM links WHERE submitter_id=62443 " +
+#         "AND votes > 1000")
+
+#     link = Link(*c.fetchone())
+#     return link.id
+
+# print query()
+
+# QUIZ - make the function query() return a list of the IDs of the links
+# that were submitted by user 62443 sorted by submission time ascending.
+
 def query():
 
-    c = db.execute("")
+    results = []
 
-    link = Link(c.fetchone())
-    return link.votes
+# My solution
+
+    # c = db.execute(
+    #     'SELECT id FROM links WHERE submitter_id=62443 ' +
+    #     'ORDER BY submitted_time ASC'
+    # )
+
+    # for link_tuple in c:
+    #     results.append(link_tuple[0])
+
+    # return results
+
+# Instructor solution
+
+    c = db.execute('SELECT * FROM links WHERE submitter_id=62443 ' +
+        'ORDER BY submitted_time ASC')
+
+    for link_tuple in c:
+         link = Link(*link_tuple)
+         results.append(link.id)
+
+    return results
 
 print query()
