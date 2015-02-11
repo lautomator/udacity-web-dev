@@ -146,13 +146,21 @@ def query():
 
 # Instructor solution
 
-    c = db.execute('SELECT * FROM links WHERE submitter_id=62443 ' +
+    # c = db.execute('SELECT * FROM links WHERE submitter_id=62443 ' +
+    #     'ORDER BY submitted_time ASC')
+
+    # for link_tuple in c:
+    #      link = Link(*link_tuple)
+    #      results.append(link.id)
+
+    # return results
+
+# refined instructor soluton: list comprehension
+
+    c = db.execute('SELECT id FROM links WHERE submitter_id=62443 ' +
         'ORDER BY submitted_time ASC')
 
-    for link_tuple in c:
-         link = Link(*link_tuple)
-         results.append(link.id)
-
+    results = [t[0] for t in c]
     return results
 
 print query()
