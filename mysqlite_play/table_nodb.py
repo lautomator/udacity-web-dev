@@ -1,5 +1,4 @@
 from collections import namedtuple
-import sqlite3
 
 # make a basic Link class
 Link = namedtuple('Link', ['id', 'submitter_id', 'submitted_time', 'votes',
@@ -83,89 +82,37 @@ links = [
          "http://www.r-bloggers.com/an-r-programmer-looks-at-julia/")]
 
 # links is a list of Link objects. Links have a handful of properties. For
-# example, a Link's number of votes can be accessed by link.votes if "link" is a
-# Link.
+# example, a Link's number of votes can be accessed by link.votes if "link"
+# is a Link.
 
-# make and populate a table
-db = sqlite3.connect(':memory:')
-db.execute('create table links ' +
-    '(id integer, submitter_id integer, submitted_time integer, ' +
-    'votes integer, title text, url text)')
+# QUIZ - implement the function link_by_id() that takes a link's ID and returns
+# the Link object itself
+# def link_by_id(link_id):
 
-for l in links:
-    db.execute('insert into links values (?, ?, ?, ?, ?, ?)', l)
+#     for link in links:
+#         if link.id == link_id:
+#             return link
 
-# printing all of the records
-# def query():
-#     cursor = db.execute('select * from links')
-#     for link_tuple in cursor:
-#         # link = Link(*link_tuple)
-#         print link_tuple
+# print link_by_id(214)  # none
+# print link_by_id(15)
 
-# QUIZ - make the function query() return the number of
-# votes the link with ID = 2 has
-# def query():
+# QUIZ - implement the function build_link_index() that creates
+# a python dictionary the maps a link's ID to the link itself
+def build_link_index():
 
-#     c = db.execute("SELECT * FROM links WHERE id=2")
+    links_dict = {}
 
-#     link = Link(*c.fetchone())
-#     return link.votes
+    for link in links:
+        links_dict[link.id] = link
 
-# print query()
+    return links_dict
 
-# QUIZ - make the function query() return the ID of the link that was
-# submitted by user 62443 and has > 1000 votes.
-# def query():
+# GLOBAL
+link_index = build_link_index()
 
-#     c = db.execute("SELECT * FROM links WHERE submitter_id=62443 " +
-#         "AND votes > 1000")
+# updated query function by ID
+def link_by_id(link_id):
+    return link_index.get(link_id)
 
-#     link = Link(*c.fetchone())
-#     return link.id
-
-# print query()
-
-# QUIZ - make the function query() return a list of the IDs of the links
-# that were submitted by user 62443 sorted by submission time ascending.
-
-
-# My solution
-# def query():
-
-#     results = []
-
-    # c = db.execute(
-    #     'SELECT id FROM links WHERE submitter_id=62443 ' +
-    #     'ORDER BY submitted_time ASC'
-    # )
-
-    # for link_tuple in c:
-    #     results.append(link_tuple[0])
-
-    # return results
-
-# Instructor solution
-# def query():
-
-#     results = []
-    # c = db.execute('SELECT * FROM links WHERE submitter_id=62443 ' +
-    #     'ORDER BY submitted_time ASC')
-
-    # for link_tuple in c:
-    #      link = Link(*link_tuple)
-    #      results.append(link.id)
-
-    # return results
-
-# refined instructor soluton: list comprehension
-def query():
-
-    results = []
-
-    c = db.execute('SELECT id FROM links WHERE submitter_id=62443 ' +
-        'ORDER BY submitted_time ASC')
-
-    results = [t[0] for t in c]
-    return results
-
-print query()
+print link_by_id(15)
+print link_by_id(123456456)  # None
