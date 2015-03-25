@@ -2,19 +2,40 @@
 
 <html>
 <head>
+    <meta charset="utf-8">
     <style type="text/css">
-      body {
+      * {
         font-family: sans-serif;
-        margin: 0 auto;
-        padding: 10px;
-        width: 800px;
       }
 
-      .error { color: red; }
+      #page {
+        margin: 0 25px;
+        width: 500px;
+      }
 
-      label {
-        display: block;
-        font-size: 20px;
+      td {
+        vertical-align: top;
+      }
+      .col-1 {
+        height: 30px;
+      }
+
+      .col-2 {
+        height: 30px;
+        width: 15px;
+      }
+
+      .col-3 {
+        width: 400px;
+      }
+
+      .error {
+        color: red;
+        font-style: italic;
+      }
+
+      hr {
+        width: 500px;
       }
 
       input[type=text] {
@@ -23,18 +44,14 @@
       }
 
       textarea {
-        font-family: monospace;
-        font-size: 17px;
-        height: 400px;
         width: 400px;
+        height: 400px;
       }
 
       input[type=submit] { font-size: 24px; }
 
       hr { margin: 20px; auto; }
-
       .art + .art { margin-top : 20px; }
-
       .art-title {
         font-weight: bold;
         font-size: 20px;
@@ -43,26 +60,45 @@
         font-size: 17px;
         margin: 0;
       }
+
     </style>
     <title>/ascii/</title>
 </head>
 <body>
 
+  <div id="page">
+
     <h1>/ascii/</h1>
 
     <form method="post">
-        <label>title
-            <input type="text" name="title" value="{{title}}">
-        </label><br><br>
+        <table>
+          <tr>
+            <td class="col-1"><label>title</label></td>
+            <td class="col-2">&nbsp;</td>
+            <td class="col-3">
+              <input type="text" name="title" value="{{title}}">
+            </td>
+          </tr>
 
-        <label>art
-            <textarea name="art">{{art}}</textarea>
-        </label><br><br>
+          <tr>
+            <td class="col-1"><label>art</label></td>
+            <td class="col-2">&nbsp;</td>
+            <td class="col-3"><textarea name="art">{{art}}</textarea></td>
+          </tr>
 
-        <div class="error">{{error}}</div>
+          <tr>
+            <td class="col-1"></td>
+            <td class="col-2">&nbsp;</td>
+            <td class="col-3"><p class="error">{{error}}</p></td>
+          </tr>
 
-        <input type="submit">
+          <tr>
+            <td class="col-1"></td>
+            <td class="col-2">&nbsp;</td>
+            <td class="col-3"><input type="submit"></td>
+          </tr>
 
+        </table>
     </form>
 
     <!-- display the artwork -->
@@ -72,9 +108,11 @@
     {% for art in arts %}
         <div class="art">
             <div class="art-title">{{art.title}}</div>
-            <pre class="art-body">{{art.art}}</pre>
+            <div class="art-body"><pre>{{art.art}}</pre></div>
         </div>
     {% endfor %}
+
+  </div>
 
 </body>
 </html>
