@@ -3,7 +3,48 @@
 <html>
 <head>
     <style type="text/css">
-    * { font-family: georgia, serif; }
+
+      body {
+        font-family: sans-serif;
+        margin: 0 auto;
+        padding: 10px;
+        width: 800px;
+      }
+
+      .error { color: red; }
+
+      label {
+        display: block;
+        font-size: 20px;
+      }
+
+      input[type=text] {
+        font-size: 20px;
+        width: 400px;
+      }
+
+      textarea {
+        font-family: monospace;
+        font-size: 17px;
+        height: 400px;
+        width: 400px;
+      }
+
+      input[type=submit] { font-size: 24px; }
+
+      hr { margin: 20px; auto; }
+
+      .art + .art { margin-top : 20px; }
+
+      .art-title {
+        font-weight: bold;
+        font-size: 20px;
+      }
+      .art-body {
+        font-size: 17px;
+        margin: 0;
+      }
+
     </style>
     <title>/ascii/</title>
 </head>
@@ -25,6 +66,17 @@
         <input type="submit">
 
     </form>
+
+    <!-- display the artwork -->
+
+    <hr>
+
+    {% for art in arts %}
+        <div class="art">
+            <div class="art-title">{{art.title}}</div>
+            <pre class="art-body">{{art.art}}</pre>
+        </div>
+    {% endfor %}
 
 </body>
 </html>

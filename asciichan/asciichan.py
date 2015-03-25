@@ -10,13 +10,9 @@ jinja_env = jinja2.Environment(
     autoescape=True)
 
 
-class Art(db.Model):
-    pass
-
-
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
-        self.response.out.write(*a, **kw)
+        self.response.write(*a, **kw)
 
     def render_str(self, template, **params):
         t = jinja_env.get_template(template)
@@ -26,9 +22,23 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
 
+class Art(db.Model):
+    title = db.StringProperty(required=True)
+    art = db.TextProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
+
+
 class MainPage(Handler):
     def render_front(self, title="", art="", error=""):
-        self.render("front.html", title=title, art=art, error=error)
+        arts = db.GqlQuery("SELECT * FROM Art "
+                           "ORDER BY created DESC")
+
+        self.render(
+            "front.html",
+            title=title,
+            art=art,
+            error=error,
+            arts=arts)
 
     def get(self):
         self.render_front()
@@ -36,11 +46,13 @@ class MainPage(Handler):
     def post(self):
         title = self.request.get("title")
         art = self.request.get("art")
-        error = "Enter a title and artwork."
 
         if title and art:
-            self.write("Thanks")
+            a = Art(title=title, art=art)
+            a.put()
+            self.redirect("/")
         else:
+            error = "Enter a title and artwork."
             self.render_front(title, art, error)
 
 application = webapp2.WSGIApplication([('/', MainPage)], debug=True)
