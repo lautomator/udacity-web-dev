@@ -12,15 +12,13 @@
     <h1>/ascii/</h1>
 
     <form method="post">
-        <label>
-            <div>title</div>
-            <input type="text" name="title">
-        </label>
+        <label>title
+            <input type="text" name="title" value="{{title}}">
+        </label><br><br>
 
-        <label>
-            <div>art</div>
-            <textarea name="art"></textarea>
-        </label>
+        <label>art
+            <textarea name="art">{{art}}</textarea>
+        </label><br><br>
 
         <div class="error">{{error}}</div>
 
