@@ -2,12 +2,16 @@ import os
 import webapp2
 import jinja2
 
-# from google.appengine.ext import db
+from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir),
     autoescape=True)
+
+
+class Art(db.Model):
+    pass
 
 
 class Handler(webapp2.RequestHandler):
@@ -32,12 +36,11 @@ class MainPage(Handler):
     def post(self):
         title = self.request.get("title")
         art = self.request.get("art")
-        error = "both fields need data"
+        error = "Enter a title and artwork."
 
         if title and art:
             self.write("Thanks")
         else:
-            self.render_front(error=error)
-
+            self.render_front(title, art, error)
 
 application = webapp2.WSGIApplication([('/', MainPage)], debug=True)
