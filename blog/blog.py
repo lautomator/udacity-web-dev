@@ -43,9 +43,6 @@ class MainPage(Handler):
     def get(self):
         self.render_front()
 
-    def post(self):
-        pass
-
 
 class NewPost(Handler):
     def render_post(self, subject="", content="", error=""):
@@ -66,16 +63,29 @@ class NewPost(Handler):
         if subject and content:
             b = Blog(subject=subject, content=content)
             b.put()
+            post_id = b.key().id()
 
             # must redirect to a permalink based on ID
-            # for now go to the main page
-            self.redirect("/blog")
+            self.redirect("/blog/" + str(post_id))
         else:
             error = "Enter both subject and content."
             self.render_post(subject, content, error)
 
+
+class NewPostReview(Handler):
+    def get(self, post_id, subject, content):
+
+        self.render(
+            "reviewpost.html",
+            post_id=post_id,
+            subject=subject,
+            content=content)
+
+        # self.response.write("test %s" % post_id)
+
 # urls
 application = webapp2.WSGIApplication([
-    ('/blog', MainPage),
-    ('/blog/newpost', NewPost)
+    (r'/blog', MainPage),
+    (r'/blog/newpost', NewPost),
+    (r'/blog/(\d+)', NewPostReview)
 ], debug=True)

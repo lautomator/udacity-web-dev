@@ -11,14 +11,13 @@
 
     <h1>blog</h1>
 
-    <pre>this is a placeholder</pre>
-
     {% for post in posts %}
-        <div class="art">
-            <div class="posts-title">{{post.subject}}</div>
-            <div class="posts-body">{{post.content}}</div>
+        <div class="posts">
+            <div class="post-title">{{post.subject}}</div>
+            <div class="post-body">{{post.content}}</div>
         </div>
     {% endfor %}
+
 
   <!-- PLACEHOLDER REMOVE LATER -->
   <pre><a href="http://localhost:8080/blog/newpost">newpost</a></pre>
