@@ -12,15 +12,16 @@
     <h1>blog</h1>
 
     {% for post in posts %}
-        <div class="posts">
-            <div class="post-title">{{post.subject}}</div>
-            <div class="post-body">{{post.content}}</div>
-        </div>
+      <div class="posts">
+          <div class="post-title">{{post.subject}}</div>
+          <div class="post-body">{{post.content}}</div>
+          <div>&nbsp;</div>
+      </div>
     {% endfor %}
 
 
   <!-- PLACEHOLDER REMOVE LATER -->
-  <pre><a href="http://localhost:8080/blog/newpost">newpost</a></pre>
+  <pre><a href="http://localhost:8080/blog/newpost">create a newpost</a></pre>
 
   </div>
 

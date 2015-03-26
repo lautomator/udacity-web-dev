@@ -30,8 +30,11 @@ class Blog(db.Model):
 
 class MainPage(Handler):
     def render_front(self, subject="", content="", error=""):
-        posts = db.GqlQuery("SELECT * FROM Blog "
-                            "ORDER BY created DESC")
+        all_posts = db.GqlQuery("SELECT * FROM Blog "
+                                "ORDER BY created DESC")
+
+        # get the 10 most recent
+        posts = all_posts[0:9]
 
         self.render(
             "blog.html",
@@ -65,22 +68,23 @@ class NewPost(Handler):
             b.put()
             post_id = b.key().id()
 
-            # must redirect to a permalink based on ID
+            # must redirect to a permalink based on entity ID
             self.redirect("/blog/" + str(post_id))
+
         else:
             error = "Enter both subject and content."
             self.render_post(subject, content, error)
 
 
 class NewPostReview(Handler):
-    def get(self, post_id, subject, content):
+    def render_post_review(self, post_id):
 
         self.render(
             "reviewpost.html",
-            post_id=post_id,
-            subject=subject,
-            content=content)
+            post_id=post_id)
 
+    def get(self, post_id):
+        self.render_post_review()
         # self.response.write("test %s" % post_id)
 
 # urls
