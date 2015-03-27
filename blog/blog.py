@@ -76,16 +76,12 @@ class NewPost(Handler):
             self.render_post(subject, content, error)
 
 
-class NewPostReview(Handler):
-    def render_post_review(self, post_id):
-
-        self.render(
-            "reviewpost.html",
-            post_id=post_id)
-
+class NewPostReview(Handler, Blog):
     def get(self, post_id):
-        self.render_post_review()
-        # self.response.write("test %s" % post_id)
+        new_post_id = int(post_id)
+        new_post = Blog.get_by_id(new_post_id)
+
+        self.render("reviewpost.html", new_post=new_post)
 
 # urls
 application = webapp2.WSGIApplication([
