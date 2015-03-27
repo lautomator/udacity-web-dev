@@ -34,7 +34,7 @@ class MainPage(Handler):
                                 "ORDER BY created DESC")
 
         # get the 10 most recent
-        posts = all_posts[0:9]
+        posts = all_posts[0:5]
 
         self.render(
             "blog.html",

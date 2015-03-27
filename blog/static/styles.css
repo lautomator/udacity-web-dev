@@ -1,0 +1,42 @@
+* {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+#page {
+  background-color: #fff8e1;
+  border-radius: 3px;
+  border: solid 1px #ffe0b2;
+  margin: 30px auto;
+  min-height: 400px;
+  overflow: hidden;
+  width: 600px;
+}
+
+h1 {
+  background-color: #ffe0b2;
+  color: #d32f2f;
+  text-indent: -15px;
+  margin-bottom: 25px;
+  padding: 25px 25px 5px 25px;
+}
+
+.post-title {
+  border-top: dotted 1px #ffe0b2;
+  color: #d32f2f;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: .02em;
+  margin: 10px 25px 0 25px;
+  padding-top: 10px;
+}
+
+.post-body {
+  color: #616161;
+  font-size: 13px;
+  letter-spacing: .04em;
+  line-height: 18px;
+  margin: 10px 25px 10px 25px;
+
+}
