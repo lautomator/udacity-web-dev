@@ -1,0 +1,9 @@
+application: t-decoder-840
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /.*
+  script: cookies.application
