@@ -13,9 +13,10 @@ def hash_str(s):
 # s,HASH
 
 
-def make_secure_val(s):
-    result = s + "," + str(hash_str(s))
-    return result
+# my solution
+# def make_secure_val(s):
+#     result = s + "," + str(hash_str(s))
+#     return result
 
 # Quiz 2
 # -----------------
@@ -25,9 +26,14 @@ def make_secure_val(s):
 # s,HASH
 # and returns s if hash_str(s) == HASH, otherwise None
 
+def make_secure_val(s):
+    return "%s,%s" % (s, hash_str(s))
+
 
 def check_secure_val(h):
-    if hash_str(h[0]) == h[2:]:
-        return h[0]
+    val = h.split(',')[0]
+    if h == make_secure_val(val):
+        return val
 
+print hash_str('5')
 print check_secure_val('5,e4da3b7fbbce2345d7772b0674a318d5')
