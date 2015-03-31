@@ -1,9 +1,11 @@
 import webapp2
-import hashlib
+import hmac
+
+SECRET = 'imsosecret'
 
 
 def hash_str(s):
-    return hashlib.md5(s).hexdigest()
+    return hmac.new(SECRET, s).hexdigest()
 
 
 def make_secure_val(s):
