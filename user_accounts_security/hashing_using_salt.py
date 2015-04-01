@@ -1,3 +1,4 @@
+import hashlib
 import random
 import string
 
@@ -7,26 +8,19 @@ import string
 
 
 def make_salt():
-    salt = []
-    counter = 0
-
-    while counter < 5:
-        a = random.randint(65, 122)
-        salt.append(chr(a))
-        counter += 1
-
-    # result = string.join(string.replace(str(salt), ', ', ''), '')
-    return salt
-    # return string.strip(result, '[]')
+    return ''.join(random.choice(string.letters) for x in range(5))
 
 print make_salt()
 
+# implement the function make_pw_hash(name, pw) that returns a hashed password
+# of the format:
+# HASH(name + pw + salt),salt
+# use sha256
 
-# my solution
-# def make_salt():
-#     salt = []
-#     random_sample = random.sample(range(0, 9), 5)
 
-#     salt = [str(i) for i in random_sample]
+def make_pw_hash(name, pw):
+    s = make_salt()
+    h = hashlib.sha256(name + pw + s).hexdigest()
+    return h, s
 
-#     return ''.join(salt)
+print make_pw_hash('john', 'yomma')
