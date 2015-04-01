@@ -21,6 +21,6 @@ print make_salt()
 def make_pw_hash(name, pw):
     s = make_salt()
     h = hashlib.sha256(name + pw + s).hexdigest()
-    return h, s
+    return '%s,%s' % (h, s)
 
 print make_pw_hash('john', 'yomma')
