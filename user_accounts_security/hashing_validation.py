@@ -12,14 +12,15 @@ def make_salt():
 
 def make_pw_hash(name, pw):
     salt = make_salt()
-    h = hashlib.sha256(name + pw + salt).hexdigest()
-    return '%s,%s' % (h, salt)
+    h = hashlib.sha256(name + pw).hexdigest()
+    return h, salt
 
 
 def valid_pw(name, pw, h):
     hashed_pw = make_pw_hash(name, pw)
-    return hashed_pw
+    if hashed_pw[0] == h[0]:
+        return True
 
 h = make_pw_hash('spez', 'hunter2')
-print h
+
 print valid_pw('spez', 'hunter2', h)
