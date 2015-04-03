@@ -8,4 +8,6 @@ The following directories are deployable on the Google App Engine.
 * rot13: escapes user input and uses the ROT13 cipher to convert text input.
 * signup: prompts for a username password and email (optional); escapes user
 input and must validate all fields.
-
+* asciichan: make ascii art
+* blog: a simple blog with no authentication
+ 
