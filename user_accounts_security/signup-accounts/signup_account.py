@@ -1,97 +1,59 @@
-import webapp2
-import cgi
+import os
 import re
+import webapp2
+import jinja2
+
+template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+jinja_env = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(template_dir),
+    autoescape=True)
 
 
-form = """<!DOCTYPE html>
+class Handler(webapp2.RequestHandler):
+    def write(self, *a, **kw):
+        self.response.write(*a, **kw)
 
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>Signup</title>
-    </head>
+    def render_str(self, template, **params):
+        t = jinja_env.get_template(template)
+        return t.render(params)
 
-    <body style="font-family: sans-serif">
-        <h1>Signup</h1>
-
-        <!--// the signup form //-->
-        <form method="post">
-
-            <table style="border: none; padding: 0; margin: 0">
-                <tr>
-                    <td>Username</td>
-                    <td>
-                        <input type="text" name="username"
-                            value="%(username)s">
-                        <span style="color: red">%(err_name)s</span>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>Password</td>
-                    <td>
-                        <input type="password" name="password"
-                            value="%(password)s">
-                        <span style="color: red">%(err_password)s</span>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>Verify Password</td>
-                    <td>
-                        <input type="password" name="verify"
-                            value="%(verify)s">
-                        <span style="color: red">%(err_verify)s</span>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>Email (optional)</td>
-                    <td>
-                        <input type="text" name="email" value="%(email)s">
-                        <span style="color: red">%(err_email)s</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2"><input type="submit" value="Submit"></td>
-                </tr>
-            </table>
-        </form>
-    </body>
-</html>
-"""
+    def render(self, template, **kw):
+        self.write(self.render_str(template, **kw))
 
 
-class MainPage(webapp2.RequestHandler):
-
-    def write_form(
-        self,
-        err_name='',
-        err_password='',
-        err_verify='',
-        err_email='',
-        username='',
-        password='',
-        verify='',
-        email=''
-    ):
-
-        self.response.out.write(form % {
-            'err_name': err_name,
-            'err_password': err_password,
-            'err_verify': err_verify,
-            'err_email': err_email,
-            'username': escape_html(username),
-            'password': escape_html(password),
-            'verify': escape_html(verify),
-            'email': escape_html(email)
-        })
+class MainPage(Handler):
 
     def get(self):
-
-        self.write_form()
+        self.render(
+            "login.html",
+            err_name='',
+            err_password='',
+            err_verify='',
+            err_email='',
+            username='',
+            password='',
+            verify='',
+            email='')
 
     def post(self):
+
+        # regexs for validation:
+        _user_re = re.compile(r'^[a-zA-Z0-9_-]{3,20}$')
+        _pw_re = re.compile(r'^.{3,20}$')
+        _email_re = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
+
+        # validation procedures
+        def valid_username(s):
+            return _user_re.match(s)
+
+        def valid_password(s1):
+            return _pw_re.match(s1)
+
+        def valid_verify(s1, s2):
+            return s1 == s2
+
+        def valid_email(s):
+            return _email_re.match(s)
 
         user_username = self.request.get('username')
         user_password = self.request.get('password')
@@ -123,12 +85,14 @@ class MainPage(webapp2.RequestHandler):
 
         if (username and password and verify and email_ok):
 
+            # TODO: this must come from the cookie
             url = "/welcome?username={}".format(user_username)
 
             self.redirect(url)
 
         else:
-            self.write_form(
+            self.render(
+                "login.html",
                 err_name=err[0],
                 err_password=err[1],
                 err_verify=err[2],
@@ -136,8 +100,7 @@ class MainPage(webapp2.RequestHandler):
                 username=user_username,
                 password='',
                 verify='',
-                email=''
-            )
+                email='')
 
 
 class WelcomeHandler(webapp2.RequestHandler):
@@ -149,38 +112,6 @@ class WelcomeHandler(webapp2.RequestHandler):
 
 # URL mapping
 application = webapp2.WSGIApplication([
-    ('/signup/', MainPage),
+    ('/signup', MainPage),
     ('/welcome', WelcomeHandler)
 ], debug=True)
-
-
-# escape nasty html chars
-def escape_html(s):
-
-    return cgi.escape(s, quote=True)
-
-# regexs for validation:
-USER_RE = re.compile(r'^[a-zA-Z0-9_-]{3,20}$')
-PW_RE = re.compile(r'^.{3,20}$')
-EMAIL_RE = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
-
-
-# validation procedures
-def valid_username(s):
-
-    return USER_RE.match(s)
-
-
-def valid_password(s1):
-
-    return PW_RE.match(s1)
-
-
-def valid_verify(s1, s2):
-
-    return s1 == s2
-
-
-def valid_email(s):
-
-    return EMAIL_RE.match(s)
