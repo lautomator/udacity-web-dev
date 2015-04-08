@@ -9,6 +9,29 @@ jinja_env = jinja2.Environment(
     autoescape=True)
 
 
+# regexs for validation:
+_user_re = re.compile(r'^[a-zA-Z0-9_-]{3,20}$')
+_pw_re = re.compile(r'^.{3,20}$')
+_email_re = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
+
+
+# validation procedures
+def valid_username(s):
+    return _user_re.match(s)
+
+
+def valid_password(s1):
+    return _pw_re.match(s1)
+
+
+def valid_verify(s1, s2):
+    return s1 == s2
+
+
+def valid_email(s):
+    return _email_re.match(s)
+
+
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.write(*a, **kw)
@@ -24,6 +47,7 @@ class Handler(webapp2.RequestHandler):
 class MainPage(Handler):
 
     def get(self):
+
         self.render(
             "login.html",
             err_name='',
@@ -37,24 +61,6 @@ class MainPage(Handler):
 
     def post(self):
 
-        # regexs for validation:
-        _user_re = re.compile(r'^[a-zA-Z0-9_-]{3,20}$')
-        _pw_re = re.compile(r'^.{3,20}$')
-        _email_re = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
-
-        # validation procedures
-        def valid_username(s):
-            return _user_re.match(s)
-
-        def valid_password(s1):
-            return _pw_re.match(s1)
-
-        def valid_verify(s1, s2):
-            return s1 == s2
-
-        def valid_email(s):
-            return _email_re.match(s)
-
         user_username = self.request.get('username')
         user_password = self.request.get('password')
         user_verify = self.request.get('verify')
@@ -63,10 +69,10 @@ class MainPage(Handler):
         username = valid_username(user_username)
         password = valid_password(user_password)
         verify = valid_verify(user_password, user_verify)
-        # email is an optional field
-        email = valid_email(user_email)
+        email = valid_email(user_email)  # email is an optional field
         email_ok = True
 
+        # validate the fields and store errors
         # populates the empty list with placeholder values
         err = [s for s in (' ' * 8)]
 
@@ -85,10 +91,7 @@ class MainPage(Handler):
 
         if (username and password and verify and email_ok):
 
-            # TODO: this must come from the cookie
-            url = "/welcome?username={}".format(user_username)
-
-            self.redirect(url)
+            self.redirect('/welcome')
 
         else:
             self.render(
@@ -106,8 +109,14 @@ class MainPage(Handler):
 class WelcomeHandler(webapp2.RequestHandler):
 
     def get(self):
+        username = self.request.cookies.get('username')
 
-        username = self.request.get('username')
+        self.response.headers.add_header(
+            'Set-Cookie',
+            'username=%s' % username)
+
+        # username = self.request.get(username_cookie)
+
         self.response.out.write("Welcome, " + username)
 
 # URL mapping
