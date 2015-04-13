@@ -31,8 +31,11 @@ class MainPage(Handler):
                                          'visits=%s' % new_cookie_val)
 
         # use the cookie
-        if visits > 9:
+        if visits > 9 and visits < 100:
             self.write("You have visited the site more "
+                       "than %s times!" % visits)
+        elif visits >= 100:
+            self.write("Wow! You have visited the site more "
                        "than %s times!" % visits)
         else:
             # write the amount of visits to the page
