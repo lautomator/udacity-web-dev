@@ -59,6 +59,12 @@ class MainPage(Handler):
             verify='',
             email='')
 
+        username = self.request.cookies.get('username')
+
+        self.response.headers.add_header(
+            'Set-Cookie',
+            'username=%s' % str(username))
+
     def post(self):
 
         user_username = self.request.get('username')
@@ -109,15 +115,8 @@ class MainPage(Handler):
 class WelcomeHandler(webapp2.RequestHandler):
 
     def get(self):
-        username = self.request.cookies.get('username')
 
-        self.response.headers.add_header(
-            'Set-Cookie',
-            'username=%s' % username)
-
-        # username = self.request.get(username_cookie)
-
-        self.response.out.write("Welcome, " + username)
+        self.response.out.write("Welcome, ")
 
 # URL mapping
 application = webapp2.WSGIApplication([
