@@ -4,8 +4,9 @@ udacity-web-dev-apps
 These are my working files for the Udacity Web Development course.
 The following directories are deployable on the Google App Engine.
 
-To start the loal app engine for testing use:
-`dev_appserver.py helloworld`
+To start the local app engine for testing use:
+
+`dev_appserver.py <app dir/>`
 
 * hello: a simple http request program
 * rot13: escapes user input and uses the ROT13 cipher to convert text input.
