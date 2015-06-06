@@ -4,8 +4,10 @@ import random
 import hashlib
 import hmac
 import string
+
 import webapp2
 import jinja2
+
 from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -19,6 +21,12 @@ secret = 'nvSqlliCsiKCcfdsYAiTtvqbqwtDJxLSWxLgLfpZlZpKgApJMs'
 _user_re = re.compile(r'^[a-zA-Z0-9_-]{3,20}$')
 _pw_re = re.compile(r'^.{3,20}$')
 _email_re = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
+
+
+# renders the jinja template
+def render_str(self, template, **params):
+    t = jinja_env.get_template(template)
+    return t.render(params)
 
 
 def make_secure_val(s):
@@ -53,8 +61,8 @@ class BlogHandler(webapp2.RequestHandler):
         self.response.write(*a, **kw)
 
     def render_str(self, template, **params):
-        t = jinja_env.get_template(template)
-        return t.render(params)
+        params['user'] = self.user
+        return render_str(template, **params)
 
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
@@ -69,7 +77,11 @@ class BlogHandler(webapp2.RequestHandler):
         cookie_val = self.request.cookies.get(name)
         return cookie_val and check_secure_val(cookie_val)
 
-    # login and logout functions will go here
+    def login(self, user):
+        self.set_secure_cookie('user_id', str(user.key().id()))
+
+    def logout(self):
+        self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
 
     def initialize(self, *a, **kw):
         webapp2.RequestHandler.initialize(self, *a, **kw)
