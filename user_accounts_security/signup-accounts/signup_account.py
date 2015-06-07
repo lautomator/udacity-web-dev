@@ -23,12 +23,6 @@ _pw_re = re.compile(r'^.{3,20}$')
 _email_re = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 
 
-# renders the jinja template
-def render_str(self, template, **params):
-    t = jinja_env.get_template(template)
-    return t.render(params)
-
-
 def make_secure_val(s):
     return "%s|%s" % (s, hmac.new(secret, s).hexdigest())
 
@@ -57,12 +51,13 @@ def valid_email(s):
 
 
 class BlogHandler(webapp2.RequestHandler):
+
     def write(self, *a, **kw):
         self.response.write(*a, **kw)
 
     def render_str(self, template, **params):
-        params['user'] = self.user
-        return render_str(template, **params)
+        t = jinja_env.get_template(template)
+        return t.render(params)
 
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
@@ -77,11 +72,7 @@ class BlogHandler(webapp2.RequestHandler):
         cookie_val = self.request.cookies.get(name)
         return cookie_val and check_secure_val(cookie_val)
 
-    def login(self, user):
-        self.set_secure_cookie('user_id', str(user.key().id()))
-
-    def logout(self):
-        self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
+    # login and logout functions will go here
 
     def initialize(self, *a, **kw):
         webapp2.RequestHandler.initialize(self, *a, **kw)
@@ -151,21 +142,21 @@ class Signup(BlogHandler):
         self.user_verify = self.request.get('verify')
         self.user_email = self.request.get('email')
 
-        params = dict(username=self.username,
-                      email=self.email)
+        params = dict(username=self.user_username,
+                      email=self.user_email)
 
-        if not valid_username(self.username):
+        if not valid_username(self.user_username):
             params['err_name'] = "That's not a valid username."
             have_error = True
 
-        if not valid_password(self.password):
+        if not valid_password(self.user_password):
             params['err_password'] = "That's not a valid password."
             have_error = True
 
-        elif self.password != self.verify:
+        elif self.user_password != self.user_verify:
             params['err_verify'] = "Passwords do not match."
 
-        if not valid_email(self.email):
+        if not valid_email(self.user_email):
             params['err_email'] = "That's not a valid email."
             have_error = True
 
@@ -186,21 +177,29 @@ class DoneSignup(Signup):
 class Register(Signup):
     def done(self):
         # verify the user does not already exist
-        u = User.by_name(self.username)
+        u = User.by_name(self.user_username)
         if u:
             msg = 'User already exists'
             self.render('login.html', error_username=msg)
         else:
-            u = User.register(self.username, self.password, self.email)
+            u = User.register(self.user_username,
+                              self.user_password,
+                              self.user_email)
             u.put()
 
-            self.login(u)
+            # self.login(u)
             self.redirect('/welcome')
 
 
 class WelcomeHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.out.write("Welcome, ")
+        # username = self.request.get('username')
+        self.render('welcome.html')
+        # if valid_username(username):
+        #     self.render('welcome.html', username=username)
+        # else:
+        #     self.redirect('/signup')
+
 
 # URL mapping
 application = webapp2.WSGIApplication([
