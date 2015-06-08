@@ -72,7 +72,11 @@ class BlogHandler(webapp2.RequestHandler):
         cookie_val = self.request.cookies.get(name)
         return cookie_val and check_secure_val(cookie_val)
 
-    # login and logout functions will go here
+    def login(self, user):
+        self.set_secure_cookie('user_id', str(user.key().id()))
+
+    def logout(self):
+        self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
 
     def initialize(self, *a, **kw):
         webapp2.RequestHandler.initialize(self, *a, **kw)
@@ -92,7 +96,7 @@ def make_pw_hash(name, pw, salt=None):
 
 
 def valid_pw(name, pw, h):
-    salt = h.split(',')[1]
+    salt = h.split(',')[0]
     return h == make_pw_hash(name, pw, salt)
 
 
@@ -137,26 +141,26 @@ class Signup(BlogHandler):
 
     def post(self):
         have_error = False
-        self.user_username = self.request.get('username')
-        self.user_password = self.request.get('password')
-        self.user_verify = self.request.get('verify')
-        self.user_email = self.request.get('email')
+        self.username = self.request.get('username')
+        self.password = self.request.get('password')
+        self.verify = self.request.get('verify')
+        self.email = self.request.get('email')
 
-        params = dict(username=self.user_username,
-                      email=self.user_email)
+        params = dict(username=self.username,
+                      email=self.email)
 
-        if not valid_username(self.user_username):
+        if not valid_username(self.username):
             params['err_name'] = "That's not a valid username."
             have_error = True
 
-        if not valid_password(self.user_password):
+        if not valid_password(self.password):
             params['err_password'] = "That's not a valid password."
             have_error = True
 
-        elif self.user_password != self.user_verify:
+        elif self.password != self.verify:
             params['err_verify'] = "Passwords do not match."
 
-        if not valid_email(self.user_email):
+        if self.email and not valid_email(self.email):
             params['err_email'] = "That's not a valid email."
             have_error = True
 
@@ -169,32 +173,44 @@ class Signup(BlogHandler):
         raise NotImplementedError
 
 
-class DoneSignup(Signup):
-    def done(self):
-        self.redirect('/welcome/welcome?username=' + self.username)
-
-
 class Register(Signup):
     def done(self):
         # verify the user does not already exist
-        u = User.by_name(self.user_username)
+        u = User.by_name(self.username)
         if u:
             msg = 'User already exists'
             self.render('login.html', error_username=msg)
         else:
-            u = User.register(self.user_username,
-                              self.user_password,
-                              self.user_email)
+            u = User.register(self.username,
+                              self.password,
+                              self.email)
             u.put()
 
-            # self.login(u)
+            self.login(u)
             self.redirect('/welcome')
 
 
-class WelcomeHandler(webapp2.RequestHandler):
+class Login(BlogHandler):
     def get(self):
-        # username = self.request.get('username')
-        self.render('welcome.html')
+        self.render('login.html')
+
+    def post(self):
+        username = self.request.get('username')
+        password = self.request.get('password')
+
+        u = User.login(username, password)
+        if u:
+            self.login(u)
+            self.redirect('/blog')
+        else:
+            msg = 'Invalid login'
+            self.render('login-form.html', error=msg)
+
+
+class WelcomeHandler(BlogHandler):
+    def get(self):
+        username = self.request.cookies.get('username')
+        self.render('welcome.html', username=username)
         # if valid_username(username):
         #     self.render('welcome.html', username=username)
         # else:
