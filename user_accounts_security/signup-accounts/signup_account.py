@@ -52,7 +52,6 @@ def check_secure_val(h):
         return val
 
 
-# security procedures
 def make_salt(length=5):
     return ''.join(random.choice(string.letters) for x in range(length))
 
@@ -73,6 +72,7 @@ def users_key(group='default'):
     return db.Key.from_path('users', group)
 
 
+# handlers
 class BlogHandler(webapp2.RequestHandler):
 
     def write(self, *a, **kw):
@@ -193,7 +193,7 @@ class Register(Signup):
 
 class WelcomeHandler(BlogHandler):
     def get(self):
-        username = self.request.cookies.get('username')
+        username = self.request.cookies.get('user_id')
         self.render('welcome.html', username=username)
         # if valid_username(username):
         #     self.render('welcome.html', username=username)
