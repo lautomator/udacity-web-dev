@@ -7,53 +7,54 @@
     <title>Signup</title>
   </head>
 
-  <body style="font-family: sans-serif">
+  <body>
+    <div id="page">
+      <!--// the signup form //-->
+      <div class="login-area">
+        <h1 id="sign">Signup</h1>
+        
+        <form method="post">
+          <table>
+            <tr>
+              <td><label>Username</label></td>
+              <td>
+                <input type="text" name="username"
+                  value="{{username}}">
+                <p class="error">{{err_name}}</p>
+              </td>
+            </tr>
 
-    <!--// the signup form //-->
-    <div class="login-area">
-      <h1 id="sign">Signup</h1>
-      <form method="post">
+            <tr>
+              <td><label>Password</label></td>
+              <td>
+                <input type="password" name="password"
+                  value="{{password}}">
+                <p class="error">{{err_password}}</p>
+              </td>
+            </tr>
 
-        <table style="border: none; padding: 0; margin: 0">
-          <tr>
-            <td><label>Username</label></td>
-            <td>
-              <input type="text" name="username"
-                value="{{username}}">
-              <p class="error">{{err_name}}</p>
-            </td>
-          </tr>
+            <tr>
+              <td><label>Verify Password</label></td>
+              <td>
+                <input type="password" name="verify"
+                  value="{{verify}}">
+                <p class="error">{{err_verify}}</p>
+              </td>
+            </tr>
 
-          <tr>
-            <td><label>Password</label></td>
-            <td>
-              <input type="password" name="password"
-                value="{{password}}">
-              <p class="error">{{err_password}}</p>
-            </td>
-          </tr>
-
-          <tr>
-            <td><label>Verify Password</label></td>
-            <td>
-              <input type="password" name="verify"
-                value="{{verify}}">
-              <p class="error">{{err_verify}}</p>
-            </td>
-          </tr>
-
-          <tr>
-            <td><label>Email (optional)</label></td>
-            <td>
-              <input type="text" name="email" value="{{email}}">
-              <p class="error">{{err_email}}</p>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2"><input type="submit" value="Submit"></td>
-          </tr>
-        </table>
-      </form>
-    </div><!-- the form ends -->
+            <tr>
+              <td><label>Email (optional)</label></td>
+              <td>
+                <input type="text" name="email" value="{{email}}">
+                <p class="error">{{err_email}}</p>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2"><input type="submit" value="Submit"></td>
+            </tr>
+          </table>
+        </form>
+      </div><!-- the form ends -->
+    </div><!-- page ends -->
   </body>
 </html>

@@ -10,27 +10,18 @@ import jinja2
 
 from google.appengine.ext import db
 
+# templating directives
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir),
     autoescape=True)
 
-secret = 'nvSqlliCsiKCcfdsYAiTtvqbqwtDJxLSWxLgLfpZlZpKgApJMs'
+secret = 'nvSqlliCsiKCcfds'
 
 # regexs for validation:
 _user_re = re.compile(r'^[a-zA-Z0-9_-]{3,20}$')
 _pw_re = re.compile(r'^.{3,20}$')
 _email_re = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
-
-
-def make_secure_val(s):
-    return "%s|%s" % (s, hmac.new(secret, s).hexdigest())
-
-
-def check_secure_val(h):
-    val = h.split('|')[0]
-    if h == make_secure_val(val):
-        return val
 
 
 # validation procedures
@@ -48,6 +39,38 @@ def valid_verify(s1, s2):
 
 def valid_email(s):
     return _email_re.match(s)
+
+
+# security
+def make_secure_val(s):
+    return "%s|%s" % (s, hmac.new(secret, s).hexdigest())
+
+
+def check_secure_val(h):
+    val = h.split('|')[0]
+    if h == make_secure_val(val):
+        return val
+
+
+# security procedures
+def make_salt(length=5):
+    return ''.join(random.choice(string.letters) for x in range(length))
+
+
+def make_pw_hash(name, pw, salt=None):
+    if not salt:
+        s = make_salt()
+    h = hashlib.sha256(name + pw + s).hexdigest()
+    return '%s,%s' % (h, s)
+
+
+def valid_pw(name, pw, h):
+    salt = h.split(',')[0]
+    return h == make_pw_hash(name, pw, salt)
+
+
+def users_key(group='default'):
+    return db.Key.from_path('users', group)
 
 
 class BlogHandler(webapp2.RequestHandler):
@@ -75,39 +98,16 @@ class BlogHandler(webapp2.RequestHandler):
     def login(self, user):
         self.set_secure_cookie('user_id', str(user.key().id()))
 
-    def logout(self):
-        self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
-
     def initialize(self, *a, **kw):
         webapp2.RequestHandler.initialize(self, *a, **kw)
         uid = self.read_secure_cookie('user_id')
         self.user = uid and User.by_id(int(uid))
 
 
-def make_salt(length=5):
-    return ''.join(random.choice(string.letters) for x in range(length))
-
-
-def make_pw_hash(name, pw, salt=None):
-    if not salt:
-        s = make_salt()
-    h = hashlib.sha256(name + pw + s).hexdigest()
-    return '%s,%s' % (h, s)
-
-
-def valid_pw(name, pw, h):
-    salt = h.split(',')[0]
-    return h == make_pw_hash(name, pw, salt)
-
-
-def users_key(group='default'):
-    return db.Key.from_path('users', group)
-
-
 class User(db.Model):
     name = db.StringProperty(required=True)
     pw_hash = db.StringProperty(required=True)
-    email = db.StringProperty()  # optional
+    email = db.StringProperty()  # email is optional
 
     # decorators
     @classmethod
@@ -177,9 +177,10 @@ class Register(Signup):
     def done(self):
         # verify the user does not already exist
         u = User.by_name(self.username)
+
         if u:
             msg = 'User already exists'
-            self.render('login.html', error_username=msg)
+            self.render('login.html', err_name=msg)
         else:
             u = User.register(self.username,
                               self.password,
@@ -188,23 +189,6 @@ class Register(Signup):
 
             self.login(u)
             self.redirect('/welcome')
-
-
-class Login(BlogHandler):
-    def get(self):
-        self.render('login.html')
-
-    def post(self):
-        username = self.request.get('username')
-        password = self.request.get('password')
-
-        u = User.login(username, password)
-        if u:
-            self.login(u)
-            self.redirect('/blog')
-        else:
-            msg = 'Invalid login'
-            self.render('login-form.html', error=msg)
 
 
 class WelcomeHandler(BlogHandler):

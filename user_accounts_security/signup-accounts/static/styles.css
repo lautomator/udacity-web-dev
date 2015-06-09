@@ -1,8 +1,10 @@
 body {
-  position: relative;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 14px;
+  font-size: 14px; 
+  margin: 0;
+}
 
+#page {
   width: 800px;
   margin: 0 auto;
   padding: 10px;
@@ -11,31 +13,12 @@ body {
 
 .login-area {
   font-size: 13px;
-  color: gray;
-  position: absolute;
+  position: relative;
   top: 10px;
   right: 10px;
 }
 
-/*#sign {
-  animation: signup .5s ease-in;
-  -webkit-animation: signup .5s ease-in;
-  -webkit-animation-fill-mode: forwards;
-  animation-fill-mode: forwards;
-  position: relative;
-  left: 0;
-}
-@keyframes signup {
-  0%   {left: -50%}
-  100% {left: 0}
-}
-@-webkit-keyframes signup {
-  0%   {left: -50%}
-  100% {left: 0}
-}*/
-
 .login-link {
-  color: gray;
   text-decoration: none;
 }
 
@@ -55,6 +38,12 @@ h2 {
 
 .error {
   color: red;
+}
+
+table {
+  border: none;
+  padding: 0; 
+  margin: 0;
 }
 
 label {
@@ -80,5 +69,26 @@ textarea {
 
 input[type=submit] {
   font-size: 24px;
+}
+
+nav {
+  background-color: #99ccff;
+  color: #fff;
+  display: inline-block;
+  height: 20px;
+  left: 0;
+  padding: 10px 15px 5px 10px;
+  postion: absolute;
+  top: 0;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+}
+
+nav a:hover {
+  border-bottom: dotted 1px #333;
+  color: #333;
 }
 
