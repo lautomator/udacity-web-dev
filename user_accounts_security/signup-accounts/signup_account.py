@@ -16,15 +16,20 @@ jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir),
     autoescape=True)
 
+
+def render_str(template, **params):
+    t = jinja_env.get_template(template)
+    return t.render(params)
+
 secret = 'nvSqlliCsiKCcfds'
 
-# regexs for validation:
+# global regexs for validation:
 _user_re = re.compile(r'^[a-zA-Z0-9_-]{3,20}$')
 _pw_re = re.compile(r'^.{3,20}$')
 _email_re = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 
 
-# validation procedures
+# global validation procedures
 def valid_username(s):
     return _user_re.match(s)
 
@@ -76,11 +81,11 @@ def users_key(group='default'):
 class BlogHandler(webapp2.RequestHandler):
 
     def write(self, *a, **kw):
-        self.response.write(*a, **kw)
+        self.response.out.write(*a, **kw)
 
     def render_str(self, template, **params):
-        t = jinja_env.get_template(template)
-        return t.render(params)
+        params['username'] = self.user.name
+        return render_str(template, **params)
 
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
@@ -97,6 +102,9 @@ class BlogHandler(webapp2.RequestHandler):
 
     def login(self, user):
         self.set_secure_cookie('user_id', str(user.key().id()))
+
+    def logout(self):
+        self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
 
     def initialize(self, *a, **kw):
         webapp2.RequestHandler.initialize(self, *a, **kw)
@@ -193,7 +201,8 @@ class Register(Signup):
 
 class WelcomeHandler(BlogHandler):
     def get(self):
-        username = self.request.cookies.get('user_id')
+
+        username = self.request.get('username')
         self.render('welcome.html', username=username)
         # if valid_username(username):
         #     self.render('welcome.html', username=username)
