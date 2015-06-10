@@ -195,7 +195,7 @@ class Register(Signup):
             u.put()
 
             self.login(u)
-            self.redirect('/welcome')
+            self.redirect('welcome')
 
 
 class WelcomeHandler(BlogHandler):
@@ -203,11 +203,11 @@ class WelcomeHandler(BlogHandler):
         if self.user:
             self.render('welcome.html', username=self.user.name)
         else:
-            self.redirect('/signup')
+            self.redirect('signup')
 
 
 # URL mapping
 application = webapp2.WSGIApplication([
-    ('/signup', Register),
-    ('/welcome', WelcomeHandler)
+    ('/blog/signup', Register),
+    ('/blog/welcome', WelcomeHandler)
 ], debug=True)
