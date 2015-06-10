@@ -92,3 +92,7 @@ nav a:hover {
   color: #333;
 }
 
+.user {
+  color: #000;
+  font-weight: bold;
+}

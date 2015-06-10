@@ -117,14 +117,14 @@ class User(db.Model):
     pw_hash = db.StringProperty(required=True)
     email = db.StringProperty()  # email is optional
 
-    # decorators
+    # decorators (static procedures)
     @classmethod
     def by_id(cls, uid):
         return User.get_by_id(uid, parent=users_key())
 
     @classmethod
     def by_name(cls, name):
-        u = User.all().filter('name=', name).get()
+        u = User.all().filter('name =', name).get()
         return u
 
     @classmethod
@@ -164,7 +164,6 @@ class Signup(BlogHandler):
         if not valid_password(self.password):
             params['err_password'] = "That's not a valid password."
             have_error = True
-
         elif self.password != self.verify:
             params['err_verify'] = "Passwords do not match."
 
@@ -201,13 +200,10 @@ class Register(Signup):
 
 class WelcomeHandler(BlogHandler):
     def get(self):
-
-        username = self.request.get('username')
-        self.render('welcome.html', username=username)
-        # if valid_username(username):
-        #     self.render('welcome.html', username=username)
-        # else:
-        #     self.redirect('/signup')
+        if self.user:
+            self.render('welcome.html', username=self.user.name)
+        else:
+            self.redirect('/signup')
 
 
 # URL mapping
