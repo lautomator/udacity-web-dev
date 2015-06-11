@@ -3,7 +3,7 @@ import re
 import random
 import hashlib
 import hmac
-import string
+from string import letters
 
 import webapp2
 import jinja2
@@ -47,25 +47,26 @@ def valid_email(s):
 
 
 # security
-def make_secure_val(s):
-    return "%s|%s" % (s, hmac.new(secret, s).hexdigest())
+def make_secure_val(val):
+    return "%s|%s" % (val, hmac.new(secret, val).hexdigest())
 
 
-def check_secure_val(h):
-    val = h.split('|')[0]
-    if h == make_secure_val(val):
+def check_secure_val(secure_val):
+    val = secure_val.split('|')[0]
+    if secure_val == make_secure_val(val):
         return val
 
 
 def make_salt(length=5):
-    return ''.join(random.choice(string.letters) for x in range(length))
+    # return ''.join(random.choice(string.letters) for x in range(length))
+    return ''.join(random.choice(letters) for x in xrange(length))
 
 
 def make_pw_hash(name, pw, salt=None):
     if not salt:
         s = make_salt()
     h = hashlib.sha256(name + pw + s).hexdigest()
-    return '%s,%s' % (h, s)
+    return '%s,%s' % (s, h)
 
 
 def valid_pw(name, pw, h):
@@ -273,7 +274,7 @@ class Register(Signup):
             self.redirect('welcome')
 
 
-class WelcomeHandler(BlogHandler):
+class Welcome(BlogHandler):
     def get(self):
         if self.user:
             self.render('welcome.html', username=self.user.name)
@@ -286,5 +287,5 @@ application = webapp2.WSGIApplication([
     ('/blog/newpost', NewPost),
     ('/blog/(\d+)', NewPostReview),
     ('/blog/signup', Register),
-    ('/blog/welcome', WelcomeHandler)
+    ('/blog/welcome', Welcome)
 ], debug=True)
