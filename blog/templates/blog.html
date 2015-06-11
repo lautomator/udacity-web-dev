@@ -9,19 +9,25 @@
 
   <body>
     <nav>
-      <a href="/blog/signup">signup</a>
+      <a href="/blog/login">login</a>
+      | <a href="/blog/signup">signup</a>
     </nav>
 
     <div id="page">
       <h1>blog</h1>
 
-      {% for post in posts %}
-        <div class="posts">
-            <div class="post-title">{{post.subject}}</div>
-            <div class="post-body">{{post.content}}</div>
-            <div>&nbsp;</div>
-        </div>
-      {% endfor %}
+      {% if posts %}
+        {% for post in posts %}
+          <div class="posts">
+              <div class="post-title">{{post.subject}}</div>
+              <div class="post-body">{{post.content}}</div>
+              <div>&nbsp;</div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>There are no posts!</p>
+        <p><a href="/blog/newpost">Start blogging.</a></p>
+      {% endif %}
 
     </div>
   </body>

@@ -64,9 +64,9 @@ def make_salt(length=5):
 
 def make_pw_hash(name, pw, salt=None):
     if not salt:
-        s = make_salt()
-    h = hashlib.sha256(name + pw + s).hexdigest()
-    return '%s,%s' % (s, h)
+        salt = make_salt()
+    h = hashlib.sha256(name + pw + salt).hexdigest()
+    return '%s,%s' % (salt, h)
 
 
 def valid_pw(name, pw, h):
@@ -221,7 +221,7 @@ class User(db.Model):
 class Signup(BlogHandler):
 
     def get(self):
-        self.render("login.html")
+        self.render("signup.html")
 
     def post(self):
         have_error = False
@@ -248,7 +248,7 @@ class Signup(BlogHandler):
             have_error = True
 
         if have_error:
-            self.render('login.html', **params)
+            self.render('signup.html', **params)
         else:
             self.done()
 
@@ -263,7 +263,7 @@ class Register(Signup):
 
         if u:
             msg = 'User already exists'
-            self.render('login.html', err_name=msg)
+            self.render('signup.html', err_name=msg)
         else:
             u = User.register(self.username,
                               self.password,
@@ -272,6 +272,29 @@ class Register(Signup):
 
             self.login(u)
             self.redirect('welcome')
+
+
+class Login(BlogHandler):
+    def get(self):
+        self.render('login.html')
+
+    def post(self):
+        username = self.request.get('username')
+        password = self.request.get('password')
+
+        u = User.login(username, password)
+        if u:
+            self.login(u)
+            self.redirect('welcome')
+        else:
+            msg = 'Invalid login'
+            self.render('login.html', err=msg)
+
+
+class Logout(BlogHandler):
+    def get(self):
+        self.logout()
+        self.redirect('signup')
 
 
 class Welcome(BlogHandler):
@@ -287,5 +310,7 @@ application = webapp2.WSGIApplication([
     ('/blog/newpost', NewPost),
     ('/blog/(\d+)', NewPostReview),
     ('/blog/signup', Register),
-    ('/blog/welcome', Welcome)
+    ('/blog/welcome', Welcome),
+    ('/blog/login', Login),
+    ('/blog/logout', Logout)
 ], debug=True)
