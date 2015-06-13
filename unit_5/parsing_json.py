@@ -47,16 +47,28 @@ def total_ups():
     # load the string as json
     d = json.loads(reddit_front)
     
-    # gets one 'up'
+    # gets the first 'up'
     # up = d['data']['children'][0]['data']['ups']
+    # gets the second 'up'
+    # up_one = d['data']['children'][1]['data']['ups']    
     
-    c = d['data']['children'][0]['data']
+    children = d['data']['children']
     ups = []
     
-    for item in c:
-        ups.append(c['ups'])
+    # put all of the 'ups' to a list
+    for child in children:
+        ups.append(child['data']['ups'])
+
+    # go through the list and sum all of the 'ups'
+    total_ups = 0
+    for up in ups:
+        total_ups = up + total_ups
+
     
-    return ups
+    return total_ups
+
+    # his solution uses a list comprehension (much better):
+    # return sum(d['data']['ups'] for d in d['data']['children'])
 
 print total_ups()
 
