@@ -32,5 +32,21 @@ xml = """<HostipLookupResultSet xmlns:gml="http://www.opengis.net/gml" xmlns:xsi
 from xml.dom import minidom
 
 def get_coords(xml):
-    ###Your code here
 
+    # parse the xml
+    p = minidom.parseString(xml)
+    
+    # get the coordinates
+    coords = p.getElementsByTagName("gml:coordinates")
+    
+    if coords and coords[0].childNodes[0].nodeValue:
+        lon, lat = str(coords[0].childNodes[0].nodeValue).split(',')
+    
+    return lat, lon
+
+print get_coords(xml)
+
+
+
+
+# tuple example tup = (3, 4)

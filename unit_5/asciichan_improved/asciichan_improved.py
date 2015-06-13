@@ -2,7 +2,7 @@ import os
 import webapp2
 import jinja2
 import urllib2
-from xml.dom.minidom import parseString
+from xml.dom import minidom
 
 from google.appengine.ext import db
 
@@ -28,6 +28,10 @@ IP_URL = "http://api.hostip.info/?p="
 
 
 def get_coords(ip):
+
+    # fall back ip address
+    ip = "4.2.2.2"
+
     url = IP_URL + ip
     content = None
 
@@ -38,8 +42,16 @@ def get_coords(ip):
         return
 
     if content:
-        # parse xml and find the coordinates
-        pass
+        # parse the xml
+        p = minidom.parseString(content)
+        
+        # get the coordinates
+        coords = p.getElementsByTagName("gml:coordinates")
+        
+        if coords and coords[0].childNodes[0].nodeValue:
+            lon, lat = str(coords[0].childNodes[0].nodeValue).split(',')
+            return db.GeoPt(lat, lon)
+
 
 
 class Art(db.Model):
@@ -61,7 +73,8 @@ class MainPage(Handler):
             arts=arts)
 
     def get(self):
-        self.render_front()
+        self.write(repr(get_coords(self.request.remote_addr)))
+        return self.render_front()
 
     def post(self):
         title = self.request.get("title")
