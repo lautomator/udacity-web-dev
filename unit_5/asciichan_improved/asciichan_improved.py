@@ -24,6 +24,17 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
 
+GMAPS_URL = "http://maps.googleapis.com/maps/api/staticmap?size=380x263&sensor=false&"
+
+
+def gmaps_img(points):
+    
+    markers = '&'.join('markers=%s,%s' % (p.lat, p.lon) for p in points)
+    
+    url = GMAPS_URL + markers
+    
+    return url
+
 IP_URL = "http://api.hostip.info/?p="
 
 
@@ -58,6 +69,7 @@ class Art(db.Model):
     title = db.StringProperty(required=True)
     art = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
+    coords = db.GeoPtProperty()
 
 
 class MainPage(Handler):
@@ -65,15 +77,35 @@ class MainPage(Handler):
         arts = db.GqlQuery("SELECT * FROM Art "
                            "ORDER BY created DESC")
 
+        # prevent the running of multiple queries
+        arts = list(arts)
+        
+        # find which pieces of art have coords
+        # points = []
+        # for art in arts:
+        #    if arts.coords:
+        #        points.append(art.coords)
+        
+        # This is the shorter version of the above ^^^^^^
+        points = filter(None, (art.coords for art in arts))
+
+        # if we have any art coords, make an image
+        img_url = None
+        if points:
+            img_url = gmaps_img(points)
+
         self.render(
             "front.html",
             title=title,
             art=art,
             error=error,
-            arts=arts)
+            arts=arts,
+            img_url=img_url)
 
     def get(self):
-        self.write(repr(get_coords(self.request.remote_addr)))
+        # write the coords (for testing only)
+        # self.write(repr(get_coords(self.request.remote_addr)))
+        
         return self.render_front()
 
     def post(self):
@@ -83,8 +115,10 @@ class MainPage(Handler):
         if title and art:
             a = Art(title=title, art=art)
 
-            # lookup user coordinates from ip address
-            # if we have coordinates, add them to the page
+            coords = get_coords(self.request.remote_addr)
+            
+            if coords:
+                a.coords = coords
 
             a.put()
             self.redirect("/")

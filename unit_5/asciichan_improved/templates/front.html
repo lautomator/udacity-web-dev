@@ -37,11 +37,19 @@
           <tr>
             <td class="col-1"></td>
             <td class="col-2">&nbsp;</td>
-            <td class="col-3"><input type="submit" value="submit"></td>
+            <td class="col-3"><input type="submit" value="submit"
+                class="btn_txt"></td>
           </tr>
 
         </table>
     </form>
+    
+    <!-- display the map -->
+    <div id="gmaps">
+        {% if img_url %}
+            <img src="{{img_url}}" alt="gmaps">
+        {% endif %}
+    </div>
 
     <!-- display the artwork -->
 

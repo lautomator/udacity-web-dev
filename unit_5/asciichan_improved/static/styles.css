@@ -65,3 +65,13 @@ hr {
   font-size: 17px;
   margin: 0;
 }
+
+.btn_txt {
+  font-size: 12px !important;
+}
+
+#gmaps {
+    position: absolute;
+    right: 100px;
+    top: 112px;
+}
