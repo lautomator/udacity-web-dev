@@ -4,6 +4,7 @@ import random
 import hashlib
 import hmac
 from string import letters
+import json
 
 import webapp2
 import jinja2
@@ -103,7 +104,7 @@ class MainPage(Handler):
                                 "ORDER BY created DESC")
 
         # get the 10 most recent
-        posts = all_posts[0:5]
+        posts = all_posts[0:10]
 
         self.render(
             "blog.html",
@@ -153,7 +154,6 @@ class NewPostReview(Handler, Blog):
         self.render("reviewpost.html", new_post=new_post)
 
 
-# signup
 class BlogHandler(webapp2.RequestHandler):
 
     def write(self, *a, **kw):
@@ -304,6 +304,37 @@ class Welcome(BlogHandler):
         else:
             self.redirect('signup')
 
+
+class BlogAPI(Handler):
+    # generate json from the main page
+    def render_json(self):
+        all_posts = db.GqlQuery("SELECT * FROM Blog "
+                                "ORDER BY created DESC")
+
+        content = all_posts[0].content
+        subject = all_posts[0].subject
+        created = str(all_posts[0].created)
+        # last_modified is the same as created because the
+        # blog does not have a feature for updating an entry
+        last_modified = created
+
+        j = json.dumps([{'content': content,
+                         'subject': subject,
+                         'created': created,
+                         'last_modified': last_modified}])
+        return j
+
+    def get(self):
+        # set the content type
+        self.response.headers[
+            'Content-Type'] = 'application/json; charset=UTF-8'
+        self.response.write(self.render_json())
+
+
+class NewPostAPI(NewPostReview):
+    pass
+
+
 # urls
 application = webapp2.WSGIApplication([
     ('/blog', MainPage),
@@ -312,5 +343,7 @@ application = webapp2.WSGIApplication([
     ('/blog/signup', Register),
     ('/blog/welcome', Welcome),
     ('/blog/login', Login),
-    ('/blog/logout', Logout)
+    ('/blog/logout', Logout),
+    ('/blog/.json', BlogAPI),
+    ('/blog/(\d+).json', NewPostAPI)
 ], debug=True)
