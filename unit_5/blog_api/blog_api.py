@@ -307,31 +307,24 @@ class Welcome(BlogHandler):
 
 class BlogAPI(Handler):
     # generate json from the main page
-    def render_json(self):
+    def write_json(self):
         all_posts = db.GqlQuery("SELECT * FROM Blog "
                                 "ORDER BY created DESC")
 
-# This might help:
-# markers = '&'.join('markers=%s,%s' % (p.lat, p.lon) for p in points)
+        # example: content = all_posts[0].content
+        j = ''.join(json.dumps([{'content': post.content,
+                                 'subject': post.subject,
+                                 'created': str(post.created),
+                                 'last_modified': str(post.created)}])
+                    for post in all_posts)
 
-        content = all_posts[0].content
-        subject = all_posts[0].subject
-        created = str(all_posts[0].created)
-        # last_modified is the same as created because the
-        # blog does not have a feature for updating an entry
-        last_modified = created
-
-        j = json.dumps([{'content': content,
-                         'subject': subject,
-                         'created': created,
-                         'last_modified': last_modified}])
         return j
 
     def get(self):
         # set the content type
         self.response.headers[
             'Content-Type'] = 'application/json; charset=UTF-8'
-        self.response.write(self.render_json())
+        self.response.write(self.write_json())
 
 
 class NewPostAPI(NewPostReview):
