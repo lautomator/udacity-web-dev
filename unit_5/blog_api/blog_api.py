@@ -311,6 +311,9 @@ class BlogAPI(Handler):
         all_posts = db.GqlQuery("SELECT * FROM Blog "
                                 "ORDER BY created DESC")
 
+# This might help:
+# markers = '&'.join('markers=%s,%s' % (p.lat, p.lon) for p in points)
+
         content = all_posts[0].content
         subject = all_posts[0].subject
         created = str(all_posts[0].created)
