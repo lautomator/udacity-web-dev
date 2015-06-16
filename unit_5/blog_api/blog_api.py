@@ -307,7 +307,7 @@ class Welcome(BlogHandler):
 
 class BlogAPI(Handler):
     # generate json from the main page
-    def write_json(self):
+    def blog_json(self):
         all_posts = db.GqlQuery("SELECT * FROM Blog "
                                 "ORDER BY created DESC")
 
@@ -324,10 +324,17 @@ class BlogAPI(Handler):
         # set the content type
         self.response.headers[
             'Content-Type'] = 'application/json; charset=UTF-8'
-        self.response.write(self.write_json())
+        self.response.write(self.blog_json())
 
 
 class NewPostAPI(NewPostReview):
+    # def post_json(self):
+    #     current_post = new_post
+
+    # def get(self):
+    #     self.response.headers[
+    #         'Content-Type'] = 'application/json; charset=UTF-8'
+    #     self.response.write('self.current_post')
     pass
 
 
@@ -341,5 +348,5 @@ application = webapp2.WSGIApplication([
     ('/blog/login', Login),
     ('/blog/logout', Logout),
     ('/blog/.json', BlogAPI),
-    ('/blog/(\d+).json', NewPostAPI)
+    ('/blog/(\d+)/.json', NewPostAPI)
 ], debug=True)
