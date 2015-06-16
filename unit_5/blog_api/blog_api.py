@@ -325,15 +325,19 @@ class BlogAPI(MainPage):
         self.response.write(self.blog_json())
 
 
-class NewPostAPI(NewPostReview):
-    # def post_json(self):
-    #     current_post = new_post
+class NewPostAPI(Handler, Blog):
+    def get(self, post_id):
+        new_post_id = int(post_id)
+        new_post = Blog.get_by_id(new_post_id)
 
-    # def get(self):
-    #     self.response.headers[
-    #         'Content-Type'] = 'application/json; charset=UTF-8'
-    #     self.response.write('self.current_post')
-    pass
+        j = json.dumps([{'content': new_post.content,
+                         'subject': new_post.subject,
+                         'created': str(new_post.created),
+                         'last_modified': str(new_post.created)}])
+
+        self.response.headers[
+            'Content-Type'] = 'application/json; charset=UTF-8'
+        self.response.write(j)
 
 
 # urls
