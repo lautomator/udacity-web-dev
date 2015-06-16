@@ -311,11 +311,11 @@ class BlogAPI(MainPage):
         all_posts = self.all_posts
 
         # example: content = all_posts[0].content
-        j = ''.join(json.dumps([{'content': post.content,
-                                 'subject': post.subject,
-                                 'created': str(post.created),
-                                 'last_modified': str(post.created)}])
-                    for post in all_posts)
+        j = "[" + ', '.join(json.dumps({'content': post.content,
+                                        'subject': post.subject,
+                                        'created': str(post.created),
+                                        'last_modified': str(post.created)})
+                            for post in all_posts) + "]"
         return j
 
     def get(self):
@@ -350,5 +350,5 @@ application = webapp2.WSGIApplication([
     ('/blog/login', Login),
     ('/blog/logout', Logout),
     ('/blog/.json', BlogAPI),
-    ('/blog/(\d+)/.json', NewPostAPI)
+    ('/blog/(\d+).json', NewPostAPI)
 ], debug=True)
