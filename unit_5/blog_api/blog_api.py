@@ -99,12 +99,12 @@ class Blog(db.Model):
 
 
 class MainPage(Handler):
-    def render_front(self, subject="", content="", error=""):
-        all_posts = db.GqlQuery("SELECT * FROM Blog "
-                                "ORDER BY created DESC")
+    all_posts = db.GqlQuery("SELECT * FROM Blog "
+                            "ORDER BY created DESC")
 
+    def render_front(self, subject="", content="", error=""):
         # get the 10 most recent
-        posts = all_posts[0:10]
+        posts = self.all_posts[0:10]
 
         self.render(
             "blog.html",
@@ -305,11 +305,10 @@ class Welcome(BlogHandler):
             self.redirect('signup')
 
 
-class BlogAPI(Handler):
+class BlogAPI(MainPage):
     # generate json from the main page
     def blog_json(self):
-        all_posts = db.GqlQuery("SELECT * FROM Blog "
-                                "ORDER BY created DESC")
+        all_posts = self.all_posts
 
         # example: content = all_posts[0].content
         j = ''.join(json.dumps([{'content': post.content,
@@ -317,7 +316,6 @@ class BlogAPI(Handler):
                                  'created': str(post.created),
                                  'last_modified': str(post.created)}])
                     for post in all_posts)
-
         return j
 
     def get(self):
