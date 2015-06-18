@@ -12,19 +12,19 @@ def complex_computation(a, b):
 
 # QUIZ - Improve the cached_computation() function below so that it caches
 # results after computing them for the first time so future calls are faster
-cache = {(5, 3): 8}
+cache = {}
 
 
 def cached_computation(a, b):
+    # check to see if the key exists and, if so, return the value
+    if (a, b) in cache:
+        r = cache[(a, b)]
+    # otherwise, generate the value and store in the cache
+    else:
+        r = complex_computation(a, b)
+        cache[(a, b)] = r
 
-    # check to see if this calculation exists
-    for k in cache:
-        if k == (a, b):
-            print k.value()
-        else:
-            r = complex_computation(a, b)
-            cache[(a, b)] = r
-            return r
+    return r
 
 
 # test data
