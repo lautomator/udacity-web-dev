@@ -12,20 +12,19 @@ def complex_computation(a, b):
 
 # QUIZ - Improve the cached_computation() function below so that it caches
 # results after computing them for the first time so future calls are faster
-cache = {}
+cache = {(5, 3): 8}
 
 
 def cached_computation(a, b):
-    # check to see if the cache has a result already
-    if 'result' in cache:
-        return cache['result']
-    else:
-        # make the computation and add to the cache
-        r = complex_computation(a, b)
-        cache['result'] = r
-        return r
 
-    return r
+    # check to see if this calculation exists
+    for k in cache:
+        if k == (a, b):
+            print k.value()
+        else:
+            r = complex_computation(a, b)
+            cache[(a, b)] = r
+            return r
 
 
 # test data
@@ -37,13 +36,13 @@ start_time2 = time.time()
 print cached_computation(5, 3)
 print "the second computation took %f seconds" % (time.time() - start_time2)
 
-# other input
-start_time = time.time()
-print cached_computation(20, 3)
-print "the first computation took %f seconds" % (time.time() - start_time)
+# # other input
+# start_time = time.time()
+# print cached_computation(20, 3)
+# print "the first computation took %f seconds" % (time.time() - start_time)
 
-start_time2 = time.time()
-print cached_computation(20, 3)
-print "the second computation took %f seconds" % (time.time() - start_time2)
+# start_time2 = time.time()
+# print cached_computation(20, 3)
+# print "the second computation took %f seconds" % (time.time() - start_time2)
 
 print cache
