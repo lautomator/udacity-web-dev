@@ -2,6 +2,7 @@ import os
 import webapp2
 import jinja2
 import urllib2
+import logging
 from xml.dom import minidom
 
 from google.appengine.ext import db
@@ -43,7 +44,7 @@ IP_URL = "http://api.hostip.info/?p="
 def get_coords(ip):
 
     # fall back ip address
-    ip = "4.2.2.2"
+    ip = "173.12.5.73"
 
     url = IP_URL + ip
     content = None
@@ -73,18 +74,29 @@ class Art(db.Model):
     coords = db.GeoPtProperty()
 
 
-def top_arts():
-    pass
+# store the queries in a cache
+CACHE = {}
+
+
+def top_arts(update=False):
+    key = 'top'
+
+    if not update and key in CACHE:
+        arts = CACHE[key]
+    else:
+        logging.error("DB QUERY")
+        arts = db.GqlQuery("SELECT * FROM Art "
+                           "ORDER BY created DESC")
+
+        arts = list(arts)
+        CACHE[key] = arts
+
+    return arts
 
 
 class MainPage(Handler):
     def render_front(self, title="", art="", error=""):
-        arts = db.GqlQuery("SELECT * FROM Art "
-                           "ORDER BY created DESC")
-
-        # prevent the running of multiple queries
-        arts = list(arts)
-
+        arts = top_arts()
         # find which pieces of art have coords
         # points = []
         # for art in arts:
@@ -126,6 +138,9 @@ class MainPage(Handler):
                 a.coords = coords
 
             a.put()
+            # rerun the query and update the cache
+            top_arts(True)
+
             self.redirect("/")
         else:
             error = "Enter a title and artwork."
