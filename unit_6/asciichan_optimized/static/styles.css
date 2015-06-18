@@ -1,0 +1,77 @@
+
+* {
+  font-family: Monaco, monospace;
+}
+
+#page {
+  margin: 0 25px;
+  width: 500px;
+}
+
+td {
+  vertical-align: top;
+}
+.col-1 {
+  height: 30px;
+}
+
+.col-2 {
+  height: 30px;
+  width: 15px;
+}
+
+.col-3 {
+  width: 400px;
+}
+
+.error {
+  color: red;
+  font-style: italic;
+}
+
+hr {
+  width: 500px;
+}
+
+input[type=text] {
+  font-size: 20px;
+  width: 400px;
+}
+
+textarea {
+  font-size: 20px;
+  width: 400px;
+  height: 400px;
+}
+
+input[type=submit] {
+  font-size: 24px;
+}
+
+hr {
+  margin: 20px; auto;
+}
+
+.art + .art {
+  margin-top : 20px;
+}
+
+.art-title {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.art-body {
+  font-size: 17px;
+  margin: 0;
+}
+
+.btn_txt {
+  font-size: 12px !important;
+}
+
+#gmaps {
+    position: absolute;
+    right: 100px;
+    top: 112px;
+}
