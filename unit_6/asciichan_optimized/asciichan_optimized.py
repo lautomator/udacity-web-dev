@@ -25,17 +25,13 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
 
-GMAPS_URL = """
-http://maps.googleapis.com/maps/api/staticmap?size=380x263&sensor=false&
-"""
+GMAPS_URL = "http://maps.googleapis.com/maps/api/staticmap?size=380x263&sensor=false&"
 
 
 def gmaps_img(points):
 
     markers = '&'.join('markers=%s,%s' % (p.lat, p.lon) for p in points)
-
     url = GMAPS_URL + markers
-
     return url
 
 IP_URL = "http://api.hostip.info/?p="
@@ -51,9 +47,8 @@ def get_coords(ip):
 
     try:
         content = urllib2.urlopen(url).read()
-    except:
-        # you could log errors here if you wanted to
-        return
+    except Exception, e:
+        raise e
 
     if content:
         # parse the xml
