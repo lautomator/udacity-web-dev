@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <link type="text/css" rel="stylesheet" href="/static/styles.css" />
-    <title>/asciichan improved/</title>
+    <title>/asciichan optimized/</title>
 </head>
 <body>
 
@@ -43,7 +43,7 @@
 
         </table>
     </form>
-    
+
     <!-- display the map -->
     <div id="gmaps">
         {% if img_url %}
@@ -52,15 +52,18 @@
     </div>
 
     <!-- display the artwork -->
-
     <hr>
 
-    {% for art in arts %}
-        <div class="art">
-            <div class="art-title">{{art.title}}</div>
-            <div class="art-body"><pre>{{art.art}}</pre></div>
-        </div>
-    {% endfor %}
+    {% if arts %}
+        {% for art in arts %}
+            <div class="art">
+                <div class="art-title">{{art.title}}</div>
+                <div class="art-body"><pre>{{art.art}}</pre></div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>There is no art. Get to work!</p>
+    {% endif %}
 
   </div>
 

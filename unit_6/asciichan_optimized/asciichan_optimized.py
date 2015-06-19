@@ -25,7 +25,9 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
 
-GMAPS_URL = "http://maps.googleapis.com/maps/api/staticmap?size=380x263&sensor=false&"
+GMAPS_URL = '''
+http://maps.googleapis.com/maps/api/staticmap?size=380x263&sensor=false&"
+'''
 
 
 def gmaps_img(points):
@@ -92,6 +94,7 @@ def top_arts(update=False):
 class MainPage(Handler):
     def render_front(self, title="", art="", error=""):
         arts = top_arts()
+
         # find which pieces of art have coords
         # points = []
         # for art in arts:
@@ -134,7 +137,7 @@ class MainPage(Handler):
 
             a.put()
             # rerun the query and update the cache
-            top_arts(True)
+            top_arts(update=True)
 
             self.redirect("/")
         else:
