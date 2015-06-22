@@ -5,7 +5,9 @@ import urllib2
 import logging
 from xml.dom import minidom
 
+from google.appengine.api import memcache
 from google.appengine.ext import db
+
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
@@ -71,22 +73,17 @@ class Art(db.Model):
     coords = db.GeoPtProperty()
 
 
-# store the queries in a cache
-CACHE = {}
-
-
 def top_arts(update=False):
     key = 'top'
+    arts = memcache.get(key)
 
-    if not update and key in CACHE:
-        arts = CACHE[key]
-    else:
+    if arts is None or update:
         logging.error("DB QUERY")
         arts = db.GqlQuery("SELECT * FROM Art "
                            "ORDER BY created DESC")
 
         arts = list(arts)
-        CACHE[key] = arts
+        memcache.set(key, arts)
 
     return arts
 
