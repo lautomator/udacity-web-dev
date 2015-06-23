@@ -6,6 +6,7 @@ import hmac
 from string import letters
 import json
 import logging
+import time
 
 import webapp2
 import jinja2
@@ -106,8 +107,10 @@ def get_articles(update=False):
 
     if all_posts is None or update:
         logging.error("DB QUERY")
-        all_posts = db.GqlQuery(" SELECT * FROM Blog "
-                                " ORDER BY created DESC ")
+        print "The database has been queried."
+
+        all_posts = db.GqlQuery("SELECT * FROM Blog ORDER BY created DESC")
+        # start_time = time.time()
 
         all_posts = list(all_posts)
         memcache.set(key, all_posts)
@@ -118,13 +121,15 @@ def get_articles(update=False):
 class MainPage(Handler):
     def render_front(self, subject="", content="", error=""):
         posts = get_articles()
+        last_queried = ''
 
         self.render(
             "blog.html",
             subject=subject,
             content=content,
             error=error,
-            posts=posts)
+            posts=posts,
+            last_queried=last_queried)
 
     def get(self):
         self.render_front()
@@ -149,9 +154,8 @@ class NewPost(Handler):
         if subject and content:
             b = Blog(subject=subject, content=content)
             b.put()
+
             post_id = b.key().id()
-            # rerun the query and update the cache
-            get_articles(update=True)
 
             # must redirect to a permalink based on entity ID
             self.redirect("/blog/" + str(post_id))
@@ -165,6 +169,9 @@ class NewPostReview(Handler, Blog):
     def get(self, post_id):
         new_post_id = int(post_id)
         new_post = Blog.get_by_id(new_post_id)
+
+        # rerun the query and update the cache
+        get_articles(True)
 
         self.render("reviewpost.html", new_post=new_post)
 
@@ -323,7 +330,7 @@ class Welcome(BlogHandler):
 class BlogAPI(MainPage):
     # generate json from the main page
     def blog_json(self):
-        all_posts = self.all_posts
+        all_posts = get_articles()
 
         # example: content = all_posts[0].content
         j = "[" + ', '.join(json.dumps({'content': post.content,
