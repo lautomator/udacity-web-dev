@@ -101,16 +101,20 @@ class Blog(db.Model):
     created = db.DateTimeProperty(auto_now_add=True)
 
 
+queried = 0
+
+
 def get_articles(update=False):
     key = 'articles'
     all_posts = memcache.get(key)
 
     if all_posts is None or update:
         logging.error("DB QUERY")
-        print "The database has been queried."
 
         all_posts = db.GqlQuery("SELECT * FROM Blog ORDER BY created DESC")
-        # start_time = time.time()
+
+        global queried
+        queried = int(time.time())
 
         all_posts = list(all_posts)
         memcache.set(key, all_posts)
@@ -121,7 +125,9 @@ def get_articles(update=False):
 class MainPage(Handler):
     def render_front(self, subject="", content="", error=""):
         posts = get_articles()
-        last_queried = ''
+
+        # get the time the DB was last queried
+        last_queried = int(time.time()) - queried
 
         self.render(
             "blog.html",
