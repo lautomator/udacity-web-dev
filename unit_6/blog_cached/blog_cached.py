@@ -144,7 +144,6 @@ class MainPage(Handler):
 
 class NewPost(Handler):
     def render_post(self, subject="", content="", error=""):
-
         self.render(
             "newpost.html",
             subject=subject,
@@ -162,6 +161,10 @@ class NewPost(Handler):
             b = Blog(subject=subject, content=content)
             b.put()
 
+            print "*** inserted into DB ***"
+            # update the cache
+            get_articles(True)
+
             post_id = b.key().id()
 
             # must redirect to a permalink based on entity ID
@@ -176,9 +179,6 @@ class NewPostReview(Handler, Blog):
     def get(self, post_id):
         new_post_id = int(post_id)
         new_post = Blog.get_by_id(new_post_id)
-
-        # rerun the query and update the cache
-        get_articles(True)
 
         # get the time the DB was last queried
         last_queried = int(time.time()) - queried
