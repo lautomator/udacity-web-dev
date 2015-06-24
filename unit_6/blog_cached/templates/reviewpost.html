@@ -8,9 +8,16 @@
 </head>
 <body>
 
+  <nav>
+    Queried {{last_queried}} seconds ago
+  </nav>
+
   <div id="page">
 
-    <h1>{{new_post.subject}}</h1>
+    <h1>
+      {{new_post.subject}}
+      <span class="post-date">{{new_post.created}}</span>
+    </h1>
 
     <div class="post-body">{{new_post.content}}</div>
 

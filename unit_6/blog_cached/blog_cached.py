@@ -123,7 +123,7 @@ def get_articles(update=False):
 
 
 class MainPage(Handler):
-    def render_front(self, subject="", content="", error=""):
+    def render_front(self, subject="", content="", created="", error=""):
         posts = get_articles()
 
         # get the time the DB was last queried
@@ -133,6 +133,7 @@ class MainPage(Handler):
             "blog.html",
             subject=subject,
             content=content,
+            created=created,
             error=error,
             posts=posts,
             last_queried=last_queried)
@@ -179,7 +180,12 @@ class NewPostReview(Handler, Blog):
         # rerun the query and update the cache
         get_articles(True)
 
-        self.render("reviewpost.html", new_post=new_post)
+        # get the time the DB was last queried
+        last_queried = int(time.time()) - queried
+
+        self.render("reviewpost.html",
+                    new_post=new_post,
+                    last_queried=last_queried)
 
 
 class BlogHandler(webapp2.RequestHandler):
