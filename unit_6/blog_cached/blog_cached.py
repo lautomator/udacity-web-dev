@@ -122,6 +122,13 @@ def get_articles(update=False):
     return all_posts
 
 
+def flush():
+    key = 'articles'
+    all_posts = memcache.get(key)
+
+    del all_posts[:]
+
+
 class MainPage(Handler):
     def render_front(self, subject="", content="", created="", error=""):
         posts = get_articles()
@@ -185,6 +192,15 @@ class NewPostReview(Handler, Blog):
         self.render("reviewpost.html",
                     new_post=new_post,
                     last_queried=last_queried)
+
+
+class Flush(Handler):
+    def get(self):
+
+        # flush the cache
+        flush()
+
+        self.redirect("/blog")
 
 
 class BlogHandler(webapp2.RequestHandler):
@@ -383,5 +399,6 @@ application = webapp2.WSGIApplication([
     ('/blog/login', Login),
     ('/blog/logout', Logout),
     ('/blog/.json', BlogAPI),
-    ('/blog/(\d+).json', NewPostAPI)
+    ('/blog/(\d+).json', NewPostAPI),
+    ('/blog/flush', Flush)
 ], debug=True)
