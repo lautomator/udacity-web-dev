@@ -128,6 +128,8 @@ def flush():
 
     del all_posts[:]
 
+    get_articles(True)
+
 
 class MainPage(Handler):
     def render_front(self, subject="", content="", created="", error=""):
