@@ -1,0 +1,3 @@
+Unit 7 was actually a series of lectures about scaling and some of reddit's development history.
+
+I am using this folder to store the final project: wiki
