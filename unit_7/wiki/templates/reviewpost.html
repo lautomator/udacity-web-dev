@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <link type="text/css" rel="stylesheet" href="/static/styles.css" />
+    <title>blog</title>
+</head>
+<body>
+
+  <nav>
+    Queried {{last_queried}} seconds ago
+  </nav>
+
+  <div id="page">
+
+    <h1>
+      {{new_post.subject}}
+      <span class="post-date">{{new_post.created}}</span>
+    </h1>
+
+    <div class="post-body">{{new_post.content}}</div>
+
+  </div>
+
+</body>
+</html>
