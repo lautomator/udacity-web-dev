@@ -161,7 +161,6 @@ class NewPost(Handler):
             b = Blog(subject=subject, content=content)
             b.put()
 
-            print "*** inserted into DB ***"
             # update the cache
             get_articles(True)
 
