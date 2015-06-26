@@ -3,9 +3,9 @@ import re
 import random
 import hashlib
 import hmac
-from string import letters
 import json
 import logging
+from string import letters
 
 import webapp2
 import jinja2
@@ -13,7 +13,10 @@ import jinja2
 from google.appengine.api import memcache
 from google.appengine.ext import db
 
+
+# =====================
 # templating directives
+# =====================
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir),
@@ -26,13 +29,17 @@ def render_str(template, **params):
 
 secret = 'nvSqlliCsiKCcfds'
 
+# =============================
 # global regexs for validation:
+# =============================
 _user_re = re.compile(r'^[a-zA-Z0-9_-]{3,20}$')
 _pw_re = re.compile(r'^.{3,20}$')
 _email_re = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 
 
-# global validation procedures
+# ==============================
+# user and validation procedures
+# ==============================
 def valid_username(s):
     return _user_re.match(s)
 
@@ -49,7 +56,13 @@ def valid_email(s):
     return _email_re.match(s)
 
 
+def users_key(group='default'):
+    return db.Key.from_path('users', group)
+
+
+# ========
 # security
+# ========
 def make_secure_val(val):
     return "%s|%s" % (val, hmac.new(secret, val).hexdigest())
 
@@ -61,7 +74,6 @@ def check_secure_val(secure_val):
 
 
 def make_salt(length=5):
-    # return ''.join(random.choice(string.letters) for x in range(length))
     return ''.join(random.choice(letters) for x in xrange(length))
 
 
@@ -77,10 +89,9 @@ def valid_pw(name, pw, h):
     return h == make_pw_hash(name, pw, salt)
 
 
-def users_key(group='default'):
-    return db.Key.from_path('users', group)
-
-
+# =========
+# appengine
+# =========
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.write(*a, **kw)
@@ -93,51 +104,124 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
 
+# =========
+# memchache
+# =========
+def get_articles(update=False):
+    key = 'articles'
+    all_articles = memcache.get(key)
+
+    if all_articles is None or update:
+        logging.error("DB QUERY")
+
+        all_articles = db.GqlQuery("SELECT * FROM Wiki")
+
+        all_articles = list(all_articles)
+        memcache.set(key, all_articles)
+
+    return all_articles
+
+
+def flush():
+    key = 'articles'
+    all_articles = memcache.get(key)
+
+    del all_articles[:]
+
+    get_articles(True)
+
+
+class Flush(Handler):
+    def get(self):
+
+        # flush the cache
+        flush()
+
+        self.redirect("/")
+
+
+# ====
+# wiki
+# ====
 class Wiki(db.Model):
     content = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
 
 
-def get_articles(update=False):
-    key = 'articles'
-    all_posts = memcache.get(key)
+class WikiHandler(webapp2.RequestHandler):
 
-    if all_posts is None or update:
-        logging.error("DB QUERY")
+    def write(self, *a, **kw):
+        self.response.out.write(*a, **kw)
 
-        all_posts = db.GqlQuery("SELECT * FROM Wiki ORDER BY created DESC")
+    def render_str(self, template, **params):
+        params['user'] = self.user
+        return render_str(template, **params)
 
-        all_posts = list(all_posts)
-        memcache.set(key, all_posts)
+    def render(self, template, **kw):
+        self.write(self.render_str(template, **kw))
 
-    return all_posts
+    def set_secure_cookie(self, name, val):
+        cookie_val = make_secure_val(val)
+        self.response.headers.add_header(
+            'Set-Cookie',
+            '%s=%s; Path=/' % (name, cookie_val))
+
+    def read_secure_cookie(self, name):
+        cookie_val = self.request.cookies.get(name)
+        return cookie_val and check_secure_val(cookie_val)
+
+    def login(self, user):
+        self.set_secure_cookie('user_id', str(user.key().id()))
+
+    def logout(self):
+        self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
+
+    def initialize(self, *a, **kw):
+        webapp2.RequestHandler.initialize(self, *a, **kw)
+        uid = self.read_secure_cookie('user_id')
+        self.user = uid and User.by_id(int(uid))
 
 
-def flush():
-    key = 'articles'
-    all_posts = memcache.get(key)
+class WikiPage(Handler, WikiHandler):
+    def render_front(self,
+                     username="",
+                     page_name="",
+                     content="",
+                     created="",
+                     error=""):
 
-    del all_posts[:]
-
-    get_articles(True)
-
-
-class MainPage(Handler):
-    def render_front(self, content="", created="", error=""):
-        posts = get_articles()
+        articles = get_articles()
 
         self.render(
             "index.html",
             content=content,
             created=created,
             error=error,
-            posts=posts)
+            login_url=login_url,
+            logout_url=logout_url,
+            signup_url=signup_url,
+            edit_url=edit_url,
+            articles=articles,
+            username=self.user.name,
+            page_name=page_name)
 
-    def get(self):
-        self.render_front()
+    def get(self, page_name):
+        if self.user:
+
+            articles = get_articles()
+            print articles
+
+            self.render_front(page_name=page_name)
+
+            # if page_name in articles:
+            #     self.redirect(page_name)
+            # else:
+            #     self.render_front(page_name=page_name)
+        else:
+            self.redirect('signup')
 
 
-class NewPost(Handler):
+class EditPage(Handler):
     def render_post(self, content="", error=""):
         self.render(
             "newpost.html",
@@ -176,49 +260,9 @@ class NewPostReview(Handler, Wiki):
                     new_post=new_post)
 
 
-class Flush(Handler):
-    def get(self):
-
-        # flush the cache
-        flush()
-
-        self.redirect("/")
-
-
-class WikiHandler(webapp2.RequestHandler):
-
-    def write(self, *a, **kw):
-        self.response.out.write(*a, **kw)
-
-    def render_str(self, template, **params):
-        params['user'] = self.user
-        return render_str(template, **params)
-
-    def render(self, template, **kw):
-        self.write(self.render_str(template, **kw))
-
-    def set_secure_cookie(self, name, val):
-        cookie_val = make_secure_val(val)
-        self.response.headers.add_header(
-            'Set-Cookie',
-            '%s=%s; Path=/' % (name, cookie_val))
-
-    def read_secure_cookie(self, name):
-        cookie_val = self.request.cookies.get(name)
-        return cookie_val and check_secure_val(cookie_val)
-
-    def login(self, user):
-        self.set_secure_cookie('user_id', str(user.key().id()))
-
-    def logout(self):
-        self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
-
-    def initialize(self, *a, **kw):
-        webapp2.RequestHandler.initialize(self, *a, **kw)
-        uid = self.read_secure_cookie('user_id')
-        self.user = uid and User.by_id(int(uid))
-
-
+# ============
+# login/signup
+# ============
 class User(db.Model):
     name = db.StringProperty(required=True)
     pw_hash = db.StringProperty(required=True)
@@ -298,7 +342,7 @@ class Signup(WikiHandler):
             u.put()
 
             self.login(u)
-            self.redirect(login_url)
+            self.redirect(home_url)
 
 
 class Login(WikiHandler):
@@ -327,16 +371,19 @@ class Logout(WikiHandler):
         self.redirect(login_url)
 
 
-class WikiAPI(MainPage):
+# ===
+# API
+# ===
+class WikiAPI(WikiPage):
     # generate json from the main page
     def wiki_json(self):
-        all_posts = get_articles()
+        all_articles = get_articles()
 
-        # example: content = all_posts[0].content
+        # example: content = all_articles[0].content
         j = "[" + ', '.join(json.dumps({'content': post.content,
                                         'created': str(post.created),
                                         'last_modified': str(post.created)})
-                            for post in all_posts) + "]"
+                            for post in all_articles) + "]"
         return j
 
     def get(self):
@@ -359,8 +406,9 @@ class NewPostAPI(Handler, Wiki):
             'Content-Type'] = 'application/json; charset=UTF-8'
         self.response.write(j)
 
-
-# urls
+# ============
+# urls/mapping
+# ============
 home_url = '/'
 login_url = '/login'
 logout_url = '/logout'
@@ -372,6 +420,6 @@ application = webapp2.WSGIApplication([
     (signup_url, Signup),
     (login_url, Login),
     (logout_url, Logout),
-    # (edit_url + PAGE_RE, EditPage),
-    # (PAGE_RE, WikiPage)
+    (edit_url + PAGE_RE, EditPage),
+    (PAGE_RE, WikiPage)
 ], debug=True)

@@ -9,15 +9,13 @@
 
   <body>
     <nav>
-      <a href="/blog/login">login</a>
-      | <a href="/blog/signup">signup</a>
+      {{username}}
+      | <a href="{{edit_url}}">edit</a>
+      | <a href="{{logout_url}}">logout</a>
     </nav>
 
     <div id="page">
-      <h1>blog</h1>
-
-
-
-    </div>
+      The name of this page is: {{page_name}}.
+    </div><!-- page ends -->
   </body>
 </html>
