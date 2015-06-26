@@ -117,3 +117,8 @@ nav a:hover {
   font-size: 14px;
   font-weight: normal;
 }
+
+.wiki-entry {
+  width: 100%;
+  height: 400px;
+}

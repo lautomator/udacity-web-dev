@@ -208,11 +208,9 @@ class WikiPage(Handler, WikiHandler):
     def get(self, page_name):
         if self.user:
 
-            articles = get_articles()
-            print articles
-
             self.render_front(page_name=page_name)
 
+            # TODO: determine if the page exists
             # if page_name in articles:
             #     self.redirect(page_name)
             # else:
@@ -222,14 +220,14 @@ class WikiPage(Handler, WikiHandler):
 
 
 class EditPage(Handler):
-    def render_post(self, content="", error=""):
+    def render_article(self, content="", error=""):
         self.render(
-            "newpost.html",
+            "edit.html",
             content=content,
             error=error)
 
     def get(self):
-        self.render_post()
+        self.render_article()
 
     def post(self):
         content = self.request.get("content")
@@ -241,23 +239,23 @@ class EditPage(Handler):
             # update the cache
             get_articles(True)
 
-            post_id = b.key().id()
+            article_id = b.key().id()
 
             # must redirect to a permalink based on entity ID
-            self.redirect("/" + str(post_id))
+            self.redirect(home_url + str(article_id))
 
         else:
             error = "Enter some content."
-            self.render_post(content, error)
+            self.render_article(content, error)
 
 
-class NewPostReview(Handler, Wiki):
-    def get(self, post_id):
-        new_post_id = int(post_id)
-        new_post = Wiki.get_by_id(new_post_id)
+# class NewPostReview(Handler, Wiki):
+#     def get(self, article_id):
+#         new_article_id = int(article_id)
+#         new_post = Wiki.get_by_id(new_post_id)
 
-        self.render("reviewpost.html",
-                    new_post=new_post)
+#         self.render("reviewpost.html",
+#                     new_post=new_post)
 
 
 # ============
@@ -413,13 +411,15 @@ home_url = '/'
 login_url = '/login'
 logout_url = '/logout'
 signup_url = '/signup'
-edit_url = '/_edit'
+edit_url = '/_edit/'
 
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
+
 application = webapp2.WSGIApplication([
     (signup_url, Signup),
     (login_url, Login),
     (logout_url, Logout),
-    (edit_url + PAGE_RE, EditPage),
+    # (edit_url + PAGE_RE, EditPage),
+    (edit_url, EditPage),
     (PAGE_RE, WikiPage)
 ], debug=True)
