@@ -6,7 +6,6 @@ import hmac
 from string import letters
 import json
 import logging
-import time
 
 import webapp2
 import jinja2
@@ -82,7 +81,6 @@ def users_key(group='default'):
     return db.Key.from_path('users', group)
 
 
-# blog
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.write(*a, **kw)
@@ -95,13 +93,9 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
 
-class Blog(db.Model):
-    subject = db.StringProperty(required=True)
+class Wiki(db.Model):
     content = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
-
-
-queried = 0
 
 
 def get_articles(update=False):
@@ -111,10 +105,7 @@ def get_articles(update=False):
     if all_posts is None or update:
         logging.error("DB QUERY")
 
-        all_posts = db.GqlQuery("SELECT * FROM Blog ORDER BY created DESC")
-
-        global queried
-        queried = int(time.time())
+        all_posts = db.GqlQuery("SELECT * FROM Wiki ORDER BY created DESC")
 
         all_posts = list(all_posts)
         memcache.set(key, all_posts)
@@ -132,30 +123,24 @@ def flush():
 
 
 class MainPage(Handler):
-    def render_front(self, subject="", content="", created="", error=""):
+    def render_front(self, content="", created="", error=""):
         posts = get_articles()
 
-        # get the time the DB was last queried
-        last_queried = int(time.time()) - queried
-
         self.render(
-            "blog.html",
-            subject=subject,
+            "index.html",
             content=content,
             created=created,
             error=error,
-            posts=posts,
-            last_queried=last_queried)
+            posts=posts)
 
     def get(self):
         self.render_front()
 
 
 class NewPost(Handler):
-    def render_post(self, subject="", content="", error=""):
+    def render_post(self, content="", error=""):
         self.render(
             "newpost.html",
-            subject=subject,
             content=content,
             error=error)
 
@@ -163,11 +148,10 @@ class NewPost(Handler):
         self.render_post()
 
     def post(self):
-        subject = self.request.get("subject")
         content = self.request.get("content")
 
-        if subject and content:
-            b = Blog(subject=subject, content=content)
+        if content:
+            b = Wiki(content=content)
             b.put()
 
             # update the cache
@@ -176,24 +160,20 @@ class NewPost(Handler):
             post_id = b.key().id()
 
             # must redirect to a permalink based on entity ID
-            self.redirect("/blog/" + str(post_id))
+            self.redirect("/" + str(post_id))
 
         else:
-            error = "Enter both subject and content."
-            self.render_post(subject, content, error)
+            error = "Enter some content."
+            self.render_post(content, error)
 
 
-class NewPostReview(Handler, Blog):
+class NewPostReview(Handler, Wiki):
     def get(self, post_id):
         new_post_id = int(post_id)
-        new_post = Blog.get_by_id(new_post_id)
-
-        # get the time the DB was last queried
-        last_queried = int(time.time()) - queried
+        new_post = Wiki.get_by_id(new_post_id)
 
         self.render("reviewpost.html",
-                    new_post=new_post,
-                    last_queried=last_queried)
+                    new_post=new_post)
 
 
 class Flush(Handler):
@@ -202,10 +182,10 @@ class Flush(Handler):
         # flush the cache
         flush()
 
-        self.redirect("/blog")
+        self.redirect("/")
 
 
-class BlogHandler(webapp2.RequestHandler):
+class WikiHandler(webapp2.RequestHandler):
 
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -269,10 +249,11 @@ class User(db.Model):
             return u
 
 
-class Signup(BlogHandler):
+class Signup(WikiHandler):
 
     def get(self):
-        self.render("signup.html")
+        self.render("signup.html",
+                    login_url=login_url)
 
     def post(self):
         have_error = False
@@ -304,11 +285,6 @@ class Signup(BlogHandler):
             self.done()
 
     def done(self, *a, **kw):
-        raise NotImplementedError
-
-
-class Register(Signup):
-    def done(self):
         # verify the user does not already exist
         u = User.by_name(self.username)
 
@@ -322,12 +298,13 @@ class Register(Signup):
             u.put()
 
             self.login(u)
-            self.redirect('welcome')
+            self.redirect(login_url)
 
 
-class Login(BlogHandler):
+class Login(WikiHandler):
     def get(self):
-        self.render('login.html')
+        self.render('login.html',
+                    signup_url=signup_url)
 
     def post(self):
         username = self.request.get('username')
@@ -336,26 +313,27 @@ class Login(BlogHandler):
         u = User.login(username, password)
         if u:
             self.login(u)
-            self.redirect('welcome')
+            self.redirect(home_url)
         else:
             msg = 'Invalid login'
-            self.render('login.html', err=msg)
+            self.render('login.html',
+                        err=msg,
+                        signup_url=signup_url)
 
 
-class Logout(BlogHandler):
+class Logout(WikiHandler):
     def get(self):
         self.logout()
-        self.redirect('signup')
+        self.redirect(login_url)
 
 
-class BlogAPI(MainPage):
+class WikiAPI(MainPage):
     # generate json from the main page
-    def blog_json(self):
+    def wiki_json(self):
         all_posts = get_articles()
 
         # example: content = all_posts[0].content
         j = "[" + ', '.join(json.dumps({'content': post.content,
-                                        'subject': post.subject,
                                         'created': str(post.created),
                                         'last_modified': str(post.created)})
                             for post in all_posts) + "]"
@@ -365,16 +343,15 @@ class BlogAPI(MainPage):
         # set the content type
         self.response.headers[
             'Content-Type'] = 'application/json; charset=UTF-8'
-        self.response.write(self.blog_json())
+        self.response.write(self.wiki_json())
 
 
-class NewPostAPI(Handler, Blog):
+class NewPostAPI(Handler, Wiki):
     def get(self, post_id):
         new_post_id = int(post_id)
-        new_post = Blog.get_by_id(new_post_id)
+        new_post = Wiki.get_by_id(new_post_id)
 
         j = json.dumps([{'content': new_post.content,
-                         'subject': new_post.subject,
                          'created': str(new_post.created),
                          'last_modified': str(new_post.created)}])
 
@@ -384,11 +361,17 @@ class NewPostAPI(Handler, Blog):
 
 
 # urls
+home_url = '/'
+login_url = '/login'
+logout_url = '/logout'
+signup_url = '/signup'
+edit_url = '/_edit'
+
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 application = webapp2.WSGIApplication([
-    ('/signup', Signup),
-    ('/login', Login),
-    ('/logout', Logout),
-    ('/_edit' + PAGE_RE, EditPage),
-    (PAGE_RE, WikiPage)
+    (signup_url, Signup),
+    (login_url, Login),
+    (logout_url, Logout),
+    # (edit_url + PAGE_RE, EditPage),
+    # (PAGE_RE, WikiPage)
 ], debug=True)
