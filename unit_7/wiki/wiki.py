@@ -143,6 +143,7 @@ class Flush(Handler):
 # wiki
 # ====
 class Wiki(db.Model):
+    subject = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
 
@@ -220,7 +221,7 @@ class WikiPage(Handler, WikiHandler):
 
 class EditPage(Handler, WikiHandler):
     def render_article(self,
-                       username="", 
+                       username="",
                        content="",
                        error=""):
         self.render(
