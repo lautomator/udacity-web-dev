@@ -13,7 +13,6 @@ import jinja2
 from google.appengine.api import memcache
 from google.appengine.ext import db
 
-
 # =====================
 # templating directives
 # =====================
@@ -137,7 +136,7 @@ class Flush(Handler):
         # flush the cache
         flush()
 
-        self.redirect("/")
+        self.redirect(home_url)
 
 
 # ====
@@ -216,18 +215,26 @@ class WikiPage(Handler, WikiHandler):
             # else:
             #     self.render_front(page_name=page_name)
         else:
-            self.redirect('signup')
+            self.redirect(login_url)
 
 
-class EditPage(Handler):
-    def render_article(self, content="", error=""):
+class EditPage(Handler, WikiHandler):
+    def render_article(self,
+                       username="", 
+                       content="",
+                       error=""):
         self.render(
             "edit.html",
+            username=self.user.name,
             content=content,
-            error=error)
+            error=error,
+            logout_url=logout_url)
 
     def get(self):
-        self.render_article()
+        if self.user:
+            self.render_article()
+        else:
+            self.redirect(login_url)
 
     def post(self):
         content = self.request.get("content")
@@ -241,12 +248,12 @@ class EditPage(Handler):
 
             article_id = b.key().id()
 
-            # must redirect to a permalink based on entity ID
+            # redirect to the new page
             self.redirect(home_url + str(article_id))
 
         else:
             error = "Enter some content."
-            self.render_article(content, error)
+            self.render_article(error)
 
 
 # class NewPostReview(Handler, Wiki):
