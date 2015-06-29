@@ -14,23 +14,17 @@
   <div id="page">
     The name of <em>this</em> page is: {{page_name}}.
 
-    {% if content %}
+    <form method="post">
 
-      <p>{{content}}</p>
+      <div class="entry">
+        <p><textarea class="wiki-entry"
+          name="content">{{content}}</textarea></p>
+      </div>
 
-    {% else %}
-      <form method="post">
+      <div class="entry"><p><input type="submit" value="save"></p></div>
 
-        <div class="entry">
-          <p><textarea class="wiki-entry"
-            name="content">{{content}}</textarea></p>
-        </div>
-
-        <div class="entry"><p><input type="submit" value="save"></p></div>
-
-        <p class="error">{{error}}</p>
-      </form>
-    {% endif %}
+      <p class="error">{{error}}</p>
+    </form>
 
   </div><!-- page ends -->
 

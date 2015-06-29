@@ -136,7 +136,7 @@ class Flush(Handler):
         # flush the cache
         flush()
 
-        self.redirect(home_url)
+        self.redirect(page_url)
 
 
 # ====
@@ -184,17 +184,21 @@ class WikiHandler(webapp2.RequestHandler):
 
 
 class WikiPage(Handler, WikiHandler):
-    def render_front(self,
-                     username="",
-                     page_name="",
-                     content="",
-                     created="",
-                     error=""):
+    def render_wiki_page(self,
+                         username="",
+                         page_name="",
+                         content="",
+                         created="",
+                         error=""):
 
         articles = get_articles()
 
+        if content:
+            c = Wiki(page_name=page_name, content=content)
+            content = c.content
+
         self.render(
-            "index.html",
+            "page.html",
             content=content,
             created=created,
             error=error,
@@ -209,16 +213,8 @@ class WikiPage(Handler, WikiHandler):
     def get(self, page_name):
         if self.user:
 
-            self.render_front(page_name=page_name)
+            self.render_wiki_page(page_name=page_name)
 
-            # TODO: determine if the page exists
-            # If the page name already exisits,
-            # go to that page and display its content.
-            # If it does not then edit.
-            # if page_name in articles:
-            #     self.redirect(page_name)
-            # else:
-            #     self.render_front(page_name=page_name)
         else:
             self.redirect(login_url)
 
@@ -254,10 +250,10 @@ class EditPage(Handler, WikiHandler):
             get_articles(True)
 
             article_subject = b.page_name
-            print article_subject
 
             # render the new page
-            self.render_article(page_name=article_subject, content=content)
+            self.render_article(page_name=article_subject,
+                                content=content)
 
         else:
             error = "Enter some content."
@@ -355,7 +351,7 @@ class Signup(WikiHandler):
             u.put()
 
             self.login(u)
-            self.redirect(home_url)
+            self.redirect(page_url)
 
 
 class Login(WikiHandler):
@@ -370,7 +366,7 @@ class Login(WikiHandler):
         u = User.login(username, password)
         if u:
             self.login(u)
-            self.redirect(home_url)
+            self.redirect(page_url)
         else:
             msg = 'Invalid login'
             self.render('login.html',
@@ -387,6 +383,7 @@ class Logout(WikiHandler):
 # ===
 # API
 # ===
+# TODO: These may not be needed
 class WikiAPI(WikiPage):
     # generate json from the main page
     def wiki_json(self):
@@ -422,7 +419,7 @@ class NewPostAPI(Handler, Wiki):
 # ====================
 # urls and url mapping
 # ====================
-home_url = '/'
+page_url = '/'
 login_url = '/login'
 logout_url = '/logout'
 signup_url = '/signup'
@@ -435,6 +432,5 @@ application = webapp2.WSGIApplication([
     (login_url, Login),
     (logout_url, Logout),
     (edit_url + PAGE_RE, EditPage),
-    # (edit_url, EditPage),  # For testing only
     (PAGE_RE, WikiPage)
 ], debug=True)
