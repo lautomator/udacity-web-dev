@@ -12,17 +12,26 @@
   </nav>
 
   <div id="page">
-    <form method="post">
+    The name of <em>this</em> page is: {{page_name}}.
 
-      <div class="entry">
-        <p><textarea class="wiki-entry" 
-          name="content">{{content}}</textarea></p>
-      </div>
+    {% if content %}
 
-      <div class="entry"><p><input type="submit" value="save"></p></div>
+      <p>{{content}}</p>
 
-      <p class="error">{{error}}</p>
-    </form>
+    {% else %}
+      <form method="post">
+
+        <div class="entry">
+          <p><textarea class="wiki-entry"
+            name="content">{{content}}</textarea></p>
+        </div>
+
+        <div class="entry"><p><input type="submit" value="save"></p></div>
+
+        <p class="error">{{error}}</p>
+      </form>
+    {% endif %}
+
   </div><!-- page ends -->
 
 </body>

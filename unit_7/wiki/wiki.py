@@ -143,7 +143,7 @@ class Flush(Handler):
 # wiki
 # ====
 class Wiki(db.Model):
-    subject = db.StringProperty(required=True)
+    page_name = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
 
@@ -160,6 +160,7 @@ class WikiHandler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
+    # cookie directives
     def set_secure_cookie(self, name, val):
         cookie_val = make_secure_val(val)
         self.response.headers.add_header(
@@ -211,6 +212,9 @@ class WikiPage(Handler, WikiHandler):
             self.render_front(page_name=page_name)
 
             # TODO: determine if the page exists
+            # If the page name already exisits,
+            # go to that page and display its content.
+            # If it does not then edit.
             # if page_name in articles:
             #     self.redirect(page_name)
             # else:
@@ -223,38 +227,41 @@ class EditPage(Handler, WikiHandler):
     def render_article(self,
                        username="",
                        content="",
+                       page_name="",
                        error=""):
         self.render(
             "edit.html",
             username=self.user.name,
             content=content,
+            page_name=page_name,
             error=error,
             logout_url=logout_url)
 
-    def get(self):
+    def get(self, page_name):
         if self.user:
             self.render_article()
         else:
             self.redirect(login_url)
 
-    def post(self):
+    def post(self, page_name):
         content = self.request.get("content")
 
         if content:
-            b = Wiki(content=content)
+            b = Wiki(page_name=page_name, content=content)
             b.put()
 
             # update the cache
             get_articles(True)
 
-            article_id = b.key().id()
+            article_subject = b.page_name
+            print article_subject
 
-            # redirect to the new page
-            self.redirect(home_url + str(article_id))
+            # render the new page
+            self.render_article(page_name=article_subject, content=content)
 
         else:
             error = "Enter some content."
-            self.render_article(error)
+            self.render_article(error=error)
 
 
 # class NewPostReview(Handler, Wiki):
@@ -412,14 +419,14 @@ class NewPostAPI(Handler, Wiki):
             'Content-Type'] = 'application/json; charset=UTF-8'
         self.response.write(j)
 
-# ============
-# urls/mapping
-# ============
+# ====================
+# urls and url mapping
+# ====================
 home_url = '/'
 login_url = '/login'
 logout_url = '/logout'
 signup_url = '/signup'
-edit_url = '/_edit/'
+edit_url = '/_edit'
 
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 
@@ -427,7 +434,7 @@ application = webapp2.WSGIApplication([
     (signup_url, Signup),
     (login_url, Login),
     (logout_url, Logout),
-    # (edit_url + PAGE_RE, EditPage),
-    (edit_url, EditPage),
+    (edit_url + PAGE_RE, EditPage),
+    # (edit_url, EditPage),  # For testing only
     (PAGE_RE, WikiPage)
 ], debug=True)
