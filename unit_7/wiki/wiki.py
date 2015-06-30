@@ -192,10 +192,7 @@ class WikiPage(Handler, WikiHandler):
                          error=""):
 
         articles = get_articles()
-
-        if content:
-            c = Wiki(page_name=page_name, content=content)
-            content = c.content
+        username = self.user.name
 
         self.render(
             "page.html",
@@ -207,14 +204,12 @@ class WikiPage(Handler, WikiHandler):
             signup_url=signup_url,
             edit_url=edit_url,
             articles=articles,
-            username=self.user.name,
+            username=username,
             page_name=page_name)
 
     def get(self, page_name):
         if self.user:
-
             self.render_wiki_page(page_name=page_name)
-
         else:
             self.redirect(login_url)
 
