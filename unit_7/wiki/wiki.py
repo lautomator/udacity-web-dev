@@ -194,8 +194,10 @@ class WikiPage(Handler, WikiHandler):
         articles = get_articles()
         username = self.user.name
 
-        print page_name
-        print page_name in articles
+        for i in articles:
+            if str(i.page_name) == page_name:
+                content = page_name
+                break
 
         self.render(
             "page.html",
