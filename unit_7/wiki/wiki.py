@@ -194,6 +194,9 @@ class WikiPage(Handler, WikiHandler):
         articles = get_articles()
         username = self.user.name
 
+        print page_name
+        print page_name in articles
+
         self.render(
             "page.html",
             content=content,
