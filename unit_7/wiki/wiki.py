@@ -194,10 +194,14 @@ class WikiPage(Handler, WikiHandler):
         articles = get_articles()
         username = self.user.name
 
-        for i in articles:
-            if str(i.page_name) == page_name:
-                content = page_name
-                break
+        p = str(page_name) in articles
+
+        content = p
+
+    # for i in articles:
+    #        if str(i.page_name) == page_name:
+    #            content = i.content
+    #            break
 
         self.render(
             "page.html",
@@ -260,13 +264,15 @@ class EditPage(Handler, WikiHandler):
             self.render_article(error=error)
 
 
-# class NewPostReview(Handler, Wiki):
-#     def get(self, article_id):
-#         new_article_id = int(article_id)
-#         new_post = Wiki.get_by_id(new_post_id)
+# class Test(Handler, Wiki):
+#     def get(self, article_name):
+#         # new_article_name = int(article_name)
+#         # article_id = Wiki.get_by_id(new_article_name)
 
-#         self.render("reviewpost.html",
-#                     new_post=new_post)
+#         self.render("page.html",
+#                     page_name=article_name,
+#                     content=self.page_name,
+#                     edit_url='')
 
 
 # ============
@@ -432,5 +438,5 @@ application = webapp2.WSGIApplication([
     (login_url, Login),
     (logout_url, Logout),
     (edit_url + PAGE_RE, EditPage),
-    (PAGE_RE, WikiPage)
+    (PAGE_RE, WikiPage),
 ], debug=True)
