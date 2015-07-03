@@ -194,7 +194,7 @@ class WikiPage(Handler, WikiHandler):
         articles = get_articles()
         username = self.user.name
 
-        p = str(page_name) in articles
+        p = str(page_name)
 
         content = p
 
@@ -224,11 +224,11 @@ class WikiPage(Handler, WikiHandler):
 
 
 class EditPage(Handler, WikiHandler):
-    def render_article(self,
-                       username="",
-                       content="",
-                       page_name="",
-                       error=""):
+    def edit_article(self,
+                     username="",
+                     content="",
+                     page_name="",
+                     error=""):
         self.render(
             "edit.html",
             username=self.user.name,
@@ -239,7 +239,7 @@ class EditPage(Handler, WikiHandler):
 
     def get(self, page_name):
         if self.user:
-            self.render_article()
+            self.edit_article()
         else:
             self.redirect(login_url)
 
@@ -253,26 +253,30 @@ class EditPage(Handler, WikiHandler):
             # update the cache
             get_articles(True)
 
-            article_subject = b.page_name
+            # article_subject = b.page_name
 
-            # render the new page
-            self.render_article(page_name=article_subject,
-                                content=content)
+            # # render the new page
+            # self.redirect(page_url)
+            # self.render_wiki_page(page_name=article_subject,
+            #                       content=content)
+            self.redirect(page_name)
 
         else:
             error = "Enter some content."
-            self.render_article(error=error)
+            self.edit_article(error=error)
 
 
-# class Test(Handler, Wiki):
-#     def get(self, article_name):
-#         # new_article_name = int(article_name)
-#         # article_id = Wiki.get_by_id(new_article_name)
+# class NewPostReview(Handler, Blog):
+#     def get(self, post_id):
+#         new_post_id = int(post_id)
+#         new_post = Blog.get_by_id(new_post_id)
 
-#         self.render("page.html",
-#                     page_name=article_name,
-#                     content=self.page_name,
-#                     edit_url='')
+#         # get the time the DB was last queried
+#         last_queried = int(time.time()) - queried
+
+#         self.render("reviewpost.html",
+#                     new_post=new_post,
+#                     last_queried=last_queried)
 
 
 # ============
