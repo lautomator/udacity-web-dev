@@ -3,7 +3,6 @@ import re
 import random
 import hashlib
 import hmac
-import json
 import logging
 from string import letters
 
@@ -118,6 +117,12 @@ def get_articles(update=False):
         all_articles = list(all_articles)
         memcache.set(key, all_articles)
 
+        # log what's in the cache to the console
+        articles = get_articles()
+        for item in articles:
+            print str(item.page_name)
+        # REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
     return all_articles
 
 
@@ -186,6 +191,7 @@ class WikiHandler(webapp2.RequestHandler):
         articles = get_articles()
         for i in articles:
             if str(i.page_name) == page_name:
+
                 return str(i.content)
 
 
@@ -204,10 +210,9 @@ class WikiPage(Handler, WikiHandler):
         p = self.get_page(page_name)
 
         if p:
+            # TODO: need to get a current page by its ID
+            # content = Wiki.get_by_id(int(5891733057437696)).content
             content = p
-
-            if content is None:
-                content = ''
 
             self.render(
                 "page.html",
@@ -267,11 +272,6 @@ class EditPage(Handler, WikiHandler):
 
             # update the cache
             get_articles(True)
-
-            # log what's in the cache to the console
-            articles = get_articles()
-            for item in articles:
-                print str(item.page_name)
 
             self.redirect(page_name)
 
@@ -403,42 +403,6 @@ class Logout(WikiHandler):
         self.logout()
         self.redirect(login_url)
 
-
-# ===
-# API
-# ===
-# TODO: These may not be needed
-class WikiAPI(WikiPage):
-    # generate json from the main page
-    def wiki_json(self):
-        all_articles = get_articles()
-
-        # example: content = all_articles[0].content
-        j = "[" + ', '.join(json.dumps({'content': post.content,
-                                        'created': str(post.created),
-                                        'last_modified': str(post.created)})
-                            for post in all_articles) + "]"
-        return j
-
-    def get(self):
-        # set the content type
-        self.response.headers[
-            'Content-Type'] = 'application/json; charset=UTF-8'
-        self.response.write(self.wiki_json())
-
-
-class NewPostAPI(Handler, Wiki):
-    def get(self, post_id):
-        new_post_id = int(post_id)
-        new_post = Wiki.get_by_id(new_post_id)
-
-        j = json.dumps([{'content': new_post.content,
-                         'created': str(new_post.created),
-                         'last_modified': str(new_post.created)}])
-
-        self.response.headers[
-            'Content-Type'] = 'application/json; charset=UTF-8'
-        self.response.write(j)
 
 # ====================
 # urls and url mapping
