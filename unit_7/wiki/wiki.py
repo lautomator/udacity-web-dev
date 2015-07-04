@@ -113,13 +113,10 @@ def get_articles(update=False):
     if all_articles is None or update:
         logging.error("\n--------\nDB QUERY\n--------")
 
-        all_articles = db.GqlQuery("SELECT * FROM Wiki")
+        all_articles = db.GqlQuery("SELECT * FROM Wiki ORDER BY created DESC")
 
         all_articles = list(all_articles)
         memcache.set(key, all_articles)
-
-        for i in all_articles:
-            print str(i.page_name) + "\n"
 
     return all_articles
 
@@ -185,14 +182,14 @@ class WikiHandler(webapp2.RequestHandler):
         uid = self.read_secure_cookie('user_id')
         self.user = uid and User.by_id(int(uid))
 
-
-class WikiPage(Handler, WikiHandler):
-    def page_check(self, page_name):
+    def get_page(self, page_name):
         articles = get_articles()
-
         for i in articles:
             if str(i.page_name) == page_name:
-                return True
+                return str(i.content)
+
+
+class WikiPage(Handler, WikiHandler):
 
     def render_wiki_page(self,
                          username="",
@@ -204,7 +201,7 @@ class WikiPage(Handler, WikiHandler):
         # articles = get_articles()
         username = self.user.name
 
-        p = self.page_check(page_name)
+        p = self.get_page(page_name)
 
         if p:
             content = p
@@ -237,6 +234,11 @@ class EditPage(Handler, WikiHandler):
                      content="",
                      page_name="",
                      error=""):
+
+        p = self.get_page(page_name)
+
+        content = p
+
         self.render(
             "edit.html",
             username=self.user.name,
