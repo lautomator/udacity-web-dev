@@ -111,21 +111,24 @@ def get_articles(update=False):
     all_articles = memcache.get(key)
 
     if all_articles is None or update:
-        logging.error("DB QUERY")
+        logging.error("\n--------\nDB QUERY\n--------")
 
         all_articles = db.GqlQuery("SELECT * FROM Wiki")
 
         all_articles = list(all_articles)
         memcache.set(key, all_articles)
 
+        for i in all_articles:
+            print str(i.page_name) + "\n"
+
     return all_articles
 
 
 def flush():
     key = 'articles'
-    all_articles = memcache.get(key)
+    all_posts = memcache.get(key)
 
-    del all_articles[:]
+    del all_posts[:]
 
     get_articles(True)
 
@@ -136,7 +139,7 @@ class Flush(Handler):
         # flush the cache
         flush()
 
-        self.redirect(page_url)
+        self.redirect("/")
 
 
 # ====
@@ -184,12 +187,12 @@ class WikiHandler(webapp2.RequestHandler):
 
 
 class WikiPage(Handler, WikiHandler):
-    def check_for_page_name(self, page_name):
+    def page_check(self, page_name):
         articles = get_articles()
 
         for i in articles:
             if str(i.page_name) == page_name:
-                return page_name
+                return True
 
     def render_wiki_page(self,
                          username="",
@@ -201,7 +204,8 @@ class WikiPage(Handler, WikiHandler):
         # articles = get_articles()
         username = self.user.name
 
-        p = self.check_for_page_name(page_name)
+        p = self.page_check(page_name)
+
         if p:
             content = p
 
@@ -218,7 +222,7 @@ class WikiPage(Handler, WikiHandler):
                 username=username,
                 page_name=page_name)
         else:
-            self.redirect(edit_url + str(page_name))
+            self.redirect(edit_url + page_name)
 
     def get(self, page_name):
         if self.user:
@@ -243,7 +247,7 @@ class EditPage(Handler, WikiHandler):
 
     def get(self, page_name):
         if self.user:
-            self.edit_article()
+            self.edit_article(page_name=page_name)
         else:
             self.redirect(login_url)
 
@@ -254,15 +258,16 @@ class EditPage(Handler, WikiHandler):
             b = Wiki(page_name=page_name, content=content)
             b.put()
 
+            print "\n\n*** DB queried: put->", b, page_name, content
+
             # update the cache
             get_articles(True)
 
-            # article_subject = b.page_name
+            # log what's in the cache to the console
+            articles = get_articles()
+            for item in articles:
+                print str(item.page_name)
 
-            # # render the new page
-            # self.redirect(page_url)
-            # self.render_wiki_page(page_name=article_subject,
-            #                       content=content)
             self.redirect(page_name)
 
         else:
@@ -284,7 +289,7 @@ class EditPage(Handler, WikiHandler):
 
 
 # ============
-# login/signup
+# users/login/signup
 # ============
 class User(db.Model):
     name = db.StringProperty(required=True)
@@ -438,6 +443,7 @@ login_url = '/login'
 logout_url = '/logout'
 signup_url = '/signup'
 edit_url = '/_edit'
+flush_url = '/flush'
 
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 
@@ -445,6 +451,7 @@ application = webapp2.WSGIApplication([
     (signup_url, Signup),
     (login_url, Login),
     (logout_url, Logout),
+    (flush_url, Flush),
     (edit_url + PAGE_RE, EditPage),
-    (PAGE_RE, WikiPage),
+    (PAGE_RE, WikiPage)
 ], debug=True)
