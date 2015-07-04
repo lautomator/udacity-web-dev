@@ -206,6 +206,9 @@ class WikiPage(Handler, WikiHandler):
         if p:
             content = p
 
+            if content is None:
+                content = ''
+
             self.render(
                 "page.html",
                 content=content,
