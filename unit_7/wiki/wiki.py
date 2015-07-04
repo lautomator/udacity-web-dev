@@ -184,6 +184,13 @@ class WikiHandler(webapp2.RequestHandler):
 
 
 class WikiPage(Handler, WikiHandler):
+    def check_for_page_name(self, page_name):
+        articles = get_articles()
+
+        for i in articles:
+            if str(i.page_name) == page_name:
+                return page_name
+
     def render_wiki_page(self,
                          username="",
                          page_name="",
@@ -191,30 +198,27 @@ class WikiPage(Handler, WikiHandler):
                          created="",
                          error=""):
 
-        articles = get_articles()
+        # articles = get_articles()
         username = self.user.name
 
-        p = str(page_name)
+        p = self.check_for_page_name(page_name)
+        if p:
+            content = p
 
-        content = p
-
-    # for i in articles:
-    #        if str(i.page_name) == page_name:
-    #            content = i.content
-    #            break
-
-        self.render(
-            "page.html",
-            content=content,
-            created=created,
-            error=error,
-            login_url=login_url,
-            logout_url=logout_url,
-            signup_url=signup_url,
-            edit_url=edit_url,
-            articles=articles,
-            username=username,
-            page_name=page_name)
+            self.render(
+                "page.html",
+                content=content,
+                created=created,
+                error=error,
+                login_url=login_url,
+                logout_url=logout_url,
+                signup_url=signup_url,
+                edit_url=edit_url,
+                # articles=articles,
+                username=username,
+                page_name=page_name)
+        else:
+            self.redirect(edit_url + str(page_name))
 
     def get(self, page_name):
         if self.user:
