@@ -212,6 +212,8 @@ class WikiPage(Handler, WikiHandler):
         if p:
             # TODO: need to get a current page by its ID
             # content = Wiki.get_by_id(int(5891733057437696)).content
+            # The problem: when the user updates the page, we are
+            # writing a new db entry, as opposed to updating the current one.
             content = p
 
             self.render(
@@ -264,9 +266,13 @@ class EditPage(Handler, WikiHandler):
     def post(self, page_name):
         content = self.request.get("content")
 
+        print "the page name:", page_name
+
         if content:
             b = Wiki(page_name=page_name, content=content)
-            b.put()
+            # b.put()
+            b.save()
+            # print dir(b)
 
             print "\n\n*** DB queried: put->", b, page_name, content
 
