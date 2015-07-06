@@ -191,8 +191,11 @@ class WikiHandler(webapp2.RequestHandler):
         articles = get_articles()
         for a in articles:
             if str(a.page_name) == page_name:
+                page = a.get_by_id(a.key().id())
+
                 # get the ID and return it with the content
-                return int(a.key().id()), str(a.content)
+                # return str(a.content)
+                return page
 
 
 class WikiPage(Handler, WikiHandler):
@@ -210,12 +213,7 @@ class WikiPage(Handler, WikiHandler):
         p = self.get_page(page_name)
 
         if p:
-            # TODO: need to get a current page by its ID
-            # content = Wiki.get_by_id(int(5891733057437696)).content
-            # The problem: when the user updates the page, we are
-            # writing a new db entry, as opposed to updating the current one.
-
-            content = p[1]
+            content = p.content
 
             self.render(
                 "page.html",
@@ -246,6 +244,11 @@ class EditPage(Handler, WikiHandler):
                      page_name="",
                      error=""):
 
+        p = self.get_page(page_name)
+
+        if p:
+            content = p.content
+
         self.render(
             "edit.html",
             username=self.user.name,
@@ -261,20 +264,19 @@ class EditPage(Handler, WikiHandler):
             self.redirect(login_url)
 
     def post(self, page_name):
-        # get the content and id
-        p = self.get_page(page_name)
-        if p:
-            page_id = p[0]
-
         content = self.request.get("content")
 
-        print "the page name:", page_name
-
         if content:
+            # p = self.get_page(page_name)
+            # setattr(result, 'title', 'New Title') then result.put()
             w = Wiki(page_name=page_name, content=content)
+            # w_id = w.key().id()
+            # p = self.get_page(page_name)
+
             # print w.key().id(), page_id
 
-            w.put()
+            # setattr(w, 'content', content)
+            # w.put()
 
             print "\n\n*** DB queried: put->", w, page_name, content
 
