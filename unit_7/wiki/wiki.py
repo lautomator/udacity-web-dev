@@ -189,10 +189,10 @@ class WikiHandler(webapp2.RequestHandler):
 
     def get_page(self, page_name):
         articles = get_articles()
-        for i in articles:
-            if str(i.page_name) == page_name:
-
-                return str(i.content)
+        for a in articles:
+            if str(a.page_name) == page_name:
+                # get the ID and return it with the content
+                return int(a.key().id()), str(a.content)
 
 
 class WikiPage(Handler, WikiHandler):
@@ -214,7 +214,8 @@ class WikiPage(Handler, WikiHandler):
             # content = Wiki.get_by_id(int(5891733057437696)).content
             # The problem: when the user updates the page, we are
             # writing a new db entry, as opposed to updating the current one.
-            content = p
+
+            content = p[1]
 
             self.render(
                 "page.html",
@@ -245,10 +246,6 @@ class EditPage(Handler, WikiHandler):
                      page_name="",
                      error=""):
 
-        p = self.get_page(page_name)
-
-        content = p
-
         self.render(
             "edit.html",
             username=self.user.name,
@@ -264,17 +261,22 @@ class EditPage(Handler, WikiHandler):
             self.redirect(login_url)
 
     def post(self, page_name):
+        # get the content and id
+        p = self.get_page(page_name)
+        if p:
+            page_id = p[0]
+
         content = self.request.get("content")
 
         print "the page name:", page_name
 
         if content:
-            b = Wiki(page_name=page_name, content=content)
-            # b.put()
-            b.save()
-            # print dir(b)
+            w = Wiki(page_name=page_name, content=content)
+            # print w.key().id(), page_id
 
-            print "\n\n*** DB queried: put->", b, page_name, content
+            w.put()
+
+            print "\n\n*** DB queried: put->", w, page_name, content
 
             # update the cache
             get_articles(True)
