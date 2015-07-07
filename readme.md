@@ -15,3 +15,5 @@ input and must validate all fields.
 * asciichan: make ascii art
 * blog: a simple blog with authentication, user accounts, and API, and optimization
 * wiki: the final project--allows you to create and edit web pages
+
+Webapp2 documentation is (http://code.google.com/p/webapp-improved/)[here].

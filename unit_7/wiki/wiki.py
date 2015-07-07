@@ -207,7 +207,6 @@ class WikiPage(Handler, WikiHandler):
                          created="",
                          error=""):
 
-        # articles = get_articles()
         username = self.user.name
 
         p = self.get_page(page_name)
@@ -224,7 +223,6 @@ class WikiPage(Handler, WikiHandler):
                 logout_url=logout_url,
                 signup_url=signup_url,
                 edit_url=edit_url,
-                # articles=articles,
                 username=username,
                 page_name=page_name)
         else:
@@ -269,16 +267,17 @@ class EditPage(Handler, WikiHandler):
         if content:
             # p = self.get_page(page_name)
             # setattr(result, 'title', 'New Title') then result.put()
-            w = Wiki(page_name=page_name, content=content)
+            # w = Wiki(page_name=page_name, content=content)
             # w_id = w.key().id()
-            # p = self.get_page(page_name)
-
             # print w.key().id(), page_id
 
-            # setattr(w, 'content', content)
-            # w.put()
+            wiki_entry = db.Key.from_path('page_name', 'content')
+            wiki_get_entry = db.get(wiki_entry)
 
-            print "\n\n*** DB queried: put->", w, page_name, content
+            print "The db object = :", wiki_get_entry
+
+            # w.put()
+            # print "\n\n*** DB queried: put->", w, page_name, content
 
             # update the cache
             get_articles(True)
@@ -303,9 +302,9 @@ class EditPage(Handler, WikiHandler):
 #                     last_queried=last_queried)
 
 
-# ============
+# ==================
 # users/login/signup
-# ============
+# ==================
 class User(db.Model):
     name = db.StringProperty(required=True)
     pw_hash = db.StringProperty(required=True)
