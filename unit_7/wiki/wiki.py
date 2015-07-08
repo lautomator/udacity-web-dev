@@ -25,8 +25,6 @@ def render_str(template, **params):
     t = jinja_env.get_template(template)
     return t.render(params)
 
-secret = 'nvSqlliCsiKCcfds'
-
 # =============================
 # global regexs for validation:
 # =============================
@@ -38,6 +36,9 @@ _email_re = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 # ==============================
 # user and validation procedures
 # ==============================
+secret = 'nvSqlliCsiKCcfds'
+
+
 def valid_username(s):
     return _user_re.match(s)
 
@@ -112,7 +113,7 @@ def get_articles(update=False):
     if all_articles is None or update:
         logging.error("\n--------\nDB QUERY\n--------")
 
-        all_articles = db.GqlQuery("SELECT * FROM Wiki ORDER BY created DESC")
+        all_articles = db.GqlQuery("SELECT * FROM Wiki ORDER BY created ASC")
 
         all_articles = list(all_articles)
         memcache.set(key, all_articles)
@@ -121,27 +122,9 @@ def get_articles(update=False):
         articles = get_articles()
         for item in articles:
             print str(item.page_name)
-        # REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        # FOR TESTING ONLY ^^^^^^^^^^^^^^^^^^^^^
 
     return all_articles
-
-
-def flush():
-    key = 'articles'
-    all_posts = memcache.get(key)
-
-    del all_posts[:]
-
-    get_articles(True)
-
-
-class Flush(Handler):
-    def get(self):
-
-        # flush the cache
-        flush()
-
-        self.redirect("/")
 
 
 # ====
@@ -197,17 +180,28 @@ class WikiHandler(webapp2.RequestHandler):
                 # return str(a.content)
                 return page
 
+    def get_all_pages(self):
+        articles = get_articles()
+        pages = []
+        for a in articles:
+            pages.append(a.page_name)
+        return pages
+
 
 class WikiPage(Handler, WikiHandler):
 
     def render_wiki_page(self,
                          username="",
+                         pages="",
                          page_name="",
                          content="",
                          created="",
                          error=""):
 
         username = self.user.name
+
+        # get the names of pages, for nav
+        pages = self.get_all_pages()
 
         p = self.get_page(page_name)
 
@@ -216,15 +210,16 @@ class WikiPage(Handler, WikiHandler):
 
             self.render(
                 "page.html",
+                username=username,
+                pages=pages,
+                page_name=page_name,
                 content=content,
                 created=created,
                 error=error,
                 login_url=login_url,
                 logout_url=logout_url,
                 signup_url=signup_url,
-                edit_url=edit_url,
-                username=username,
-                page_name=page_name)
+                edit_url=edit_url)
         else:
             self.redirect(edit_url + page_name)
 
@@ -238,8 +233,8 @@ class WikiPage(Handler, WikiHandler):
 class EditPage(Handler, WikiHandler):
     def edit_article(self,
                      username="",
-                     content="",
                      page_name="",
+                     content="",
                      error=""):
 
         p = self.get_page(page_name)
@@ -250,8 +245,8 @@ class EditPage(Handler, WikiHandler):
         self.render(
             "edit.html",
             username=self.user.name,
-            content=content,
             page_name=page_name,
+            content=content,
             error=error,
             logout_url=logout_url)
 

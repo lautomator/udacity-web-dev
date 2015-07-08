@@ -14,8 +14,18 @@
     </nav>
 
     <div id="page">
-      <p>The name of this page is: {{page_name}}.</p>
-      {{content}}
+      <div>
+        <h2>pages</h2>
+        {% if pages %}
+          <ol>
+            {% for page in pages %}
+            <li><a href="{{page}}">{{page}}</a></li>
+          {% endfor %}
+         </ol>
+        {% endif %}
+      </div>
+
+      <div>{{content}}</div>
     </div><!-- page ends -->
   </body>
 </html>

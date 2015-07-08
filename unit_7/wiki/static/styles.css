@@ -17,6 +17,10 @@ body {
   color: #333;
 }
 
+div {
+  margin-bottom: 25px;
+}
+
 .login-area {
   font-size: 13px;
   position: relative;
