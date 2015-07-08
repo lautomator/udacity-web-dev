@@ -118,9 +118,9 @@ def get_articles(update=False):
         memcache.set(key, all_articles)
 
         # log what's in the cache to the console
-        articles = get_articles()
-        for item in articles:
-            print str(item.page_name)
+        # articles = get_articles()
+        # for item in articles:
+        #     print str(item.page_name)
         # REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     return all_articles
@@ -265,19 +265,18 @@ class EditPage(Handler, WikiHandler):
         content = self.request.get("content")
 
         if content:
-            # p = self.get_page(page_name)
-            # setattr(result, 'title', 'New Title') then result.put()
-            # w = Wiki(page_name=page_name, content=content)
-            # w_id = w.key().id()
-            # print w.key().id(), page_id
-
-            wiki_entry = db.Key.from_path('page_name', 'content')
-            wiki_get_entry = db.get(wiki_entry)
-
-            print "The db object = :", wiki_get_entry
-
-            # w.put()
-            # print "\n\n*** DB queried: put->", w, page_name, content
+            # check to see if the the page already exists
+            if self.get_page(page_name).key().id():
+                # get the ID of the current record,
+                # retrieve the page by ID and update
+                p = self.get_page(page_name).key().id()
+                w = Wiki.get_by_id(p)
+                setattr(w, 'content', content)
+                w.put()
+            else:
+                # a new page
+                w = Wiki(page_name=page_name, content=content)
+                w.put()
 
             # update the cache
             get_articles(True)
@@ -287,19 +286,6 @@ class EditPage(Handler, WikiHandler):
         else:
             error = "Enter some content."
             self.edit_article(error=error)
-
-
-# class NewPostReview(Handler, Blog):
-#     def get(self, post_id):
-#         new_post_id = int(post_id)
-#         new_post = Blog.get_by_id(new_post_id)
-
-#         # get the time the DB was last queried
-#         last_queried = int(time.time()) - queried
-
-#         self.render("reviewpost.html",
-#                     new_post=new_post,
-#                     last_queried=last_queried)
 
 
 # ==================
@@ -421,7 +407,6 @@ login_url = '/login'
 logout_url = '/logout'
 signup_url = '/signup'
 edit_url = '/_edit'
-flush_url = '/flush'
 
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 
@@ -429,7 +414,6 @@ application = webapp2.WSGIApplication([
     (signup_url, Signup),
     (login_url, Login),
     (logout_url, Logout),
-    (flush_url, Flush),
     (edit_url + PAGE_RE, EditPage),
     (PAGE_RE, WikiPage)
 ], debug=True)
