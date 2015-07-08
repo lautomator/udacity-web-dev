@@ -8,7 +8,7 @@
 </head>
 <body>
   <nav>
-    {{username}} (<a href="{{logout_url}}">logout</a>)
+    {{ username }} (<a href="{{ logout_url }}">logout</a>)
   </nav>
 
   <div id="page">
@@ -17,12 +17,12 @@
 
       <div class="entry">
         <p><textarea class="wiki-entry"
-          name="content">{{content}}</textarea></p>
+          name="content">{{ content }}</textarea></p>
       </div>
 
       <div class="entry"><p><input type="submit" value="save"></p></div>
 
-      <p class="error">{{error}}</p>
+      <p class="error">{{ error }}</p>
     </form>
 
   </div><!-- page ends -->

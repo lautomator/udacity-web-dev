@@ -9,8 +9,8 @@
 
   <body>
     <nav>
-      <a href="{{edit_url + page_name}}">edit</a>
-      | {{username}} (<a href="{{logout_url}}">logout</a>)
+      <a href="{{ edit_url + page_name }}">edit</a>
+      | {{ username }} (<a href="{{ logout_url }}">logout</a>)
     </nav>
 
     <div id="page">
@@ -19,13 +19,13 @@
         {% if pages %}
           <ol>
             {% for page in pages %}
-            <li><a href="{{page}}">{{page}}</a></li>
+            <li><a href="{{ page }}">{{ page }}</a></li>
           {% endfor %}
          </ol>
         {% endif %}
       </div>
 
-      <div>{{content}}</div>
+      <div>{{ content|safe }}</div>
     </div><!-- page ends -->
   </body>
 </html>

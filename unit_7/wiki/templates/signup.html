@@ -9,7 +9,7 @@
 
   <body>
     <nav>
-      <a href="{{login_url}}">login</a>
+      <a href="{{ login_url }}">login</a>
     </nav>
 
     <div id="page">
@@ -23,8 +23,8 @@
               <td><label>Username</label></td>
               <td>
                 <input type="text" name="username"
-                  value="{{username}}">
-                <p class="error">{{err_name}}</p>
+                  value="{{ username }}">
+                <p class="error">{{ err_name }}</p>
               </td>
             </tr>
 
@@ -32,8 +32,8 @@
               <td><label>Password</label></td>
               <td>
                 <input type="password" name="password"
-                  value="{{password}}">
-                <p class="error">{{err_password}}</p>
+                  value="{{ password }}">
+                <p class="error">{{ err_password }}</p>
               </td>
             </tr>
 
@@ -41,16 +41,16 @@
               <td><label>Verify Password</label></td>
               <td>
                 <input type="password" name="verify"
-                  value="{{verify}}">
-                <p class="error">{{err_verify}}</p>
+                  value="{{ verify }}">
+                <p class="error">{{ err_verify }}</p>
               </td>
             </tr>
 
             <tr>
               <td><label>Email (optional)</label></td>
               <td>
-                <input type="text" name="email" value="{{email}}">
-                <p class="error">{{err_email}}</p>
+                <input type="text" name="email" value="{{ email }}">
+                <p class="error">{{ err_email }}</p>
               </td>
             </tr>
             <tr>

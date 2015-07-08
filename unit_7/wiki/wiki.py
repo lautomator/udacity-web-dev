@@ -221,7 +221,7 @@ class WikiPage(Handler, WikiHandler):
                 signup_url=signup_url,
                 edit_url=edit_url)
 
-            self.write(content)
+            # self.write(content)
         else:
             self.redirect(edit_url + page_name)
 
