@@ -118,9 +118,9 @@ def get_articles(update=False):
         memcache.set(key, all_articles)
 
         # log what's in the cache to the console
-        # articles = get_articles()
-        # for item in articles:
-        #     print str(item.page_name)
+        articles = get_articles()
+        for item in articles:
+            print str(item.page_name)
         # REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     return all_articles
@@ -263,16 +263,17 @@ class EditPage(Handler, WikiHandler):
 
     def post(self, page_name):
         content = self.request.get("content")
+        page = self.get_page(page_name)
 
         if content:
             # check to see if the the page already exists
-            if self.get_page(page_name).key().id():
+            if page:
                 # get the ID of the current record,
                 # retrieve the page by ID and update
-                p = self.get_page(page_name).key().id()
-                w = Wiki.get_by_id(p)
+                w = Wiki.get_by_id(page.key().id())
                 setattr(w, 'content', content)
                 w.put()
+
             else:
                 # a new page
                 w = Wiki(page_name=page_name, content=content)
