@@ -119,9 +119,9 @@ def get_articles(update=False):
         memcache.set(key, all_articles)
 
         # log what's in the cache to the console
-        articles = get_articles()
-        for item in articles:
-            print str(item.page_name)
+        # articles = get_articles()
+        # for item in articles:
+        #     print str(item.page_name)
         # FOR TESTING ONLY ^^^^^^^^^^^^^^^^^^^^^
 
     return all_articles
@@ -220,6 +220,8 @@ class WikiPage(Handler, WikiHandler):
                 logout_url=logout_url,
                 signup_url=signup_url,
                 edit_url=edit_url)
+
+            self.write(content)
         else:
             self.redirect(edit_url + page_name)
 
