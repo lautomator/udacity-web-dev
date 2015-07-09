@@ -118,12 +118,6 @@ def get_articles(update=False):
         all_articles = list(all_articles)
         memcache.set(key, all_articles)
 
-        # log what's in the cache to the console
-        # articles = get_articles()
-        # for item in articles:
-        #     print str(item.page_name)
-        # FOR TESTING ONLY ^^^^^^^^^^^^^^^^^^^^^
-
     return all_articles
 
 
@@ -171,16 +165,15 @@ class WikiHandler(webapp2.RequestHandler):
         self.user = uid and User.by_id(int(uid))
 
     def get_page(self, page_name):
+        # return the page by ID
         articles = get_articles()
         for a in articles:
             if str(a.page_name) == page_name:
                 page = a.get_by_id(a.key().id())
-
-                # get the ID and return it with the content
-                # return str(a.content)
                 return page
 
     def get_all_pages(self):
+        # return a list of all of the wiki pages
         articles = get_articles()
         pages = []
         for a in articles:
@@ -200,7 +193,6 @@ class WikiPage(Handler, WikiHandler):
 
         username = self.user.name
 
-        # get the names of pages, for nav
         pages = self.get_all_pages()
 
         p = self.get_page(page_name)
@@ -220,8 +212,6 @@ class WikiPage(Handler, WikiHandler):
                 logout_url=logout_url,
                 signup_url=signup_url,
                 edit_url=edit_url)
-
-            # self.write(content)
         else:
             self.redirect(edit_url + page_name)
 
